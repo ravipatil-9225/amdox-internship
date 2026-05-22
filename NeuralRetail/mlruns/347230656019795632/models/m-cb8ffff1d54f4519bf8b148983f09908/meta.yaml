@@ -1,0 +1,10 @@
+artifact_location: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/347230656019795632/models/m-cb8ffff1d54f4519bf8b148983f09908/artifacts
+creation_timestamp: 1779287062763
+experiment_id: '347230656019795632'
+last_updated_timestamp: 1779287068023
+model_id: m-cb8ffff1d54f4519bf8b148983f09908
+model_type: null
+name: xgb_model
+source_run_id: c5b889b9dcff4a53bfa1fa90d931a29f
+status: 2
+status_message: null

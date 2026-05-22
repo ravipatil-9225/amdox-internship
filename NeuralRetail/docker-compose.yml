@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build: 
+      context: .
+      dockerfile: docker/FastAPI.Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/neuralretail
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - retail_network
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/Streamlit.Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://fastapi:8000
+    networks:
+      - retail_network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - retail_network
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=neuralretail
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - retail_network
+
+  mlflow:
+    image: bitnami/mlflow:2.13.0
+    ports:
+      - "5000:5000"
+    networks:
+      - retail_network
+
+volumes:
+  pgdata:
+
+networks:
+  retail_network:
+    driver: bridge

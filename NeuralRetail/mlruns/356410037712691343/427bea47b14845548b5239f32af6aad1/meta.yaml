@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/356410037712691343/427bea47b14845548b5239f32af6aad1/artifacts
+end_time: 1779286226662
+entry_point_name: ''
+experiment_id: '356410037712691343'
+lifecycle_stage: active
+run_id: 427bea47b14845548b5239f32af6aad1
+run_name: optuna_best_xgboost
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779286226518
+status: 3
+tags: []
+user_id: ravip

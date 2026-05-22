@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/150517601633444476/dad9d2325c0d4f618084ea33a078abb0/artifacts
+end_time: 1779289475166
+entry_point_name: ''
+experiment_id: '150517601633444476'
+lifecycle_stage: active
+run_id: dad9d2325c0d4f618084ea33a078abb0
+run_name: drift_check
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779289474892
+status: 3
+tags: []
+user_id: ravip

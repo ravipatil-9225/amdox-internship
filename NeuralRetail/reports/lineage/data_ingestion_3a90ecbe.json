@@ -1,0 +1,37 @@
+{
+  "_producer": "neuralretail-lineage-tracker/1.0",
+  "_schemaURL": "https://openlineage.io/spec/1-0-5/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-19T14:41:07.217475+00:00",
+  "run": {
+    "runId": "3a90ecbe-9847-4786-9c3b-a8ac53916b36",
+    "facets": {
+      "step": "ingestion",
+      "layer": "bronze"
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "data_ingestion"
+  },
+  "inputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "raw/pos_transactions.csv"
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "raw/customers.csv"
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/transactions.parquet"
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/customers.parquet"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "_producer": "neuralretail-lineage/2.0",
+  "_schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-20T14:37:22.320610+00:00",
+  "run": {
+    "runId": "4ee56058-ea2d-4e49-a924-c4b39ecc5ec4",
+    "facets": {
+      "step": "ingestion",
+      "layer": "bronze"
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "data_ingestion",
+    "facets": {
+      "processing_engine": {
+        "_producer": "neuralretail-lineage/2.0",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-2-2/ProcessingEngineRunFacet.json",
+        "version": "3.11",
+        "name": "python"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "raw/pos_transactions.csv",
+      "facets": {}
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "raw/customers.csv",
+      "facets": {}
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/transactions.parquet",
+      "facets": {
+        "dataQualityMetrics": {
+          "_producer": "neuralretail-lineage/2.0",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-0-2/DataQualityMetricsInputDatasetFacet.json",
+          "rowCount": 50000
+        }
+      }
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/customers.parquet",
+      "facets": {
+        "dataQualityMetrics": {
+          "_producer": "neuralretail-lineage/2.0",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-0-2/DataQualityMetricsInputDatasetFacet.json",
+          "rowCount": 50000
+        }
+      }
+    }
+  ]
+}

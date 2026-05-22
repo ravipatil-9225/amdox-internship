@@ -1,0 +1,8 @@
+artifact_location: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/356410037712691343
+creation_time: 1779286111446
+experiment_id: '356410037712691343'
+last_update_time: 1779286111446
+lifecycle_stage: active
+name: optuna_xgboost_churn
+trace_location: null
+workspace: default

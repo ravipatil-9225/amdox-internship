@@ -1,0 +1,161 @@
+name: NeuralRetail CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: neuralretail/fastapi
+  EKS_CLUSTER_NAME: neuralretail-production-eks
+
+jobs:
+  # -------------------------------------------------------------------------
+  # 1. Code Quality & Security
+  # -------------------------------------------------------------------------
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --no-root
+
+      - name: Format Check (Black)
+        run: black --check .
+
+      - name: Lint (Ruff)
+        run: ruff check .
+
+      - name: Security Scan (Bandit)
+        run: bandit -r src/ -ll
+
+      - name: Unit & Integration Tests
+        run: pytest tests/ -v --cov=src --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+  # -------------------------------------------------------------------------
+  # 2. Build & Push Docker Image (Only on main branch)
+  # -------------------------------------------------------------------------
+  build-and-push:
+    needs: lint-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.commit.outputs.short_sha }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get short SHA
+        id: commit
+        run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.commit.outputs.short_sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f docker/FastAPI.Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:champion-latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:champion-latest
+
+  # -------------------------------------------------------------------------
+  # 3. Deploy to EKS (Shadow deployment pattern)
+  # -------------------------------------------------------------------------
+  deploy-to-eks:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Update image tag in kustomization
+        env:
+          ECR_REGISTRY: ${{ needs.build-and-push.outputs.ecr_registry }}
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+        run: |
+          cd kubernetes/base
+          kustomize edit set image neuralretail/fastapi:champion-latest=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Deploy with Kustomize
+        run: |
+          kubectl apply -k kubernetes/base
+
+      - name: Verify rollout status
+        run: |
+          kubectl rollout status deployment/neuralretail-champion -n neuralretail --timeout=300s
+
+  # -------------------------------------------------------------------------
+  # 4. Post-Deployment SLO Validation (k6 Load Test)
+  # -------------------------------------------------------------------------
+  validate-slos:
+    needs: deploy-to-eks
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run k6 load test
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: tests/k6_load_test.js
+          flags: --out json=results.json
+        env:
+          API_BASE_URL: ${{ secrets.PRODUCTION_API_URL }}
+
+      - name: Check P95 SLO
+        run: |
+          # Parse k6 output to ensure P95 < 500ms
+          P95=$(jq '.metrics.http_req_duration.values["p(95)"]' results.json)
+          echo "P95 Latency: ${P95}ms"
+          if (( $(echo "$P95 > 500.0" | bc -l) )); then
+            echo "SLO BREACH: P95 latency > 500ms"
+            exit 1
+          fi
+          echo "SLO met successfully."

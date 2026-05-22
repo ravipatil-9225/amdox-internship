@@ -1,0 +1,17 @@
+credentials:
+  usernames:
+    admin:
+      email: admin@neuralretail.com
+      name: Admin User
+      password: $2b$12$En64jrvU/Q4bqYzrCbJiy.mAaYfgoReov06/0Kwt17Er5N91gbhEC
+    analyst:
+      email: analyst@neuralretail.com
+      name: Data Analyst
+      password: $2b$12$En64jrvU/Q4bqYzrCbJiy.mAaYfgoReov06/0Kwt17Er5N91gbhEC
+cookie:
+  expiry_days: 1
+  key: neural_retail_signature_key
+  name: neural_retail_cookie
+pre-authorized:
+  emails:
+  - mradmin@neuralretail.com

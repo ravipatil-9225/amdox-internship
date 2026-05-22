@@ -1,0 +1,45 @@
+{
+  "_producer": "neuralretail-lineage/2.0",
+  "_schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-20T14:39:03.452830+00:00",
+  "run": {
+    "runId": "e0a23889-9fa5-4aa2-8d4a-2539472937eb",
+    "facets": {
+      "rows_materialised": 5000,
+      "online_store": "sqlite",
+      "timestamp": "2026-05-20T14:39:03.452830+00:00"
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "feast_materialise",
+    "facets": {
+      "processing_engine": {
+        "_producer": "neuralretail-lineage/2.0",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-2-2/ProcessingEngineRunFacet.json",
+        "version": "3.11",
+        "name": "python"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/customers.parquet",
+      "facets": {}
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/transactions.parquet",
+      "facets": {}
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "feast_online_store",
+      "facets": {}
+    }
+  ]
+}

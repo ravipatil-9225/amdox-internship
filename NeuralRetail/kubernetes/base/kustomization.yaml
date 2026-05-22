@@ -1,0 +1,21 @@
+# =============================================================================
+# NeuralRetail Kubernetes -- Kustomization Base
+# Phase 3: Includes champion + shadow + VirtualService manifests
+# =============================================================================
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: neuralretail
+
+resources:
+- namespace.yaml
+- configmap.yaml
+- champion-deployment.yaml
+- shadow-deployment.yaml
+- virtual-service.yaml
+- fastapi-deployment.yaml        # Legacy deployment (kept for compatibility)
+
+commonLabels:
+  managed-by: kustomize
+  project: neuralretail
+  phase: "3"

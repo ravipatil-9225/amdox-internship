@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/759812388016444746/a607e90f7d8244b4b920f2cdadae35f3/artifacts
+end_time: 1779287260542
+entry_point_name: ''
+experiment_id: '759812388016444746'
+lifecycle_stage: active
+run_id: a607e90f7d8244b4b920f2cdadae35f3
+run_name: optuna_best_lstm
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779287260451
+status: 3
+tags: []
+user_id: ravip

@@ -1,0 +1,48 @@
+{
+  "_producer": "neuralretail-lineage-tracker/1.0",
+  "_schemaURL": "https://openlineage.io/spec/1-0-5/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-19T14:41:07.218474+00:00",
+  "run": {
+    "runId": "b98a1ada-97f9-41a2-85c8-32b9936c4289",
+    "facets": {
+      "step": "feature_engineering",
+      "layers": [
+        "silver",
+        "gold"
+      ],
+      "row_counts": {
+        "customers": 5000,
+        "transactions": 50000
+      }
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "feature_engineering"
+  },
+  "inputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/customers.parquet"
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/transactions.parquet"
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "silver/customer_features.parquet"
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "silver/daily_sku_features.parquet"
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "gold/product_catalog.parquet"
+    }
+  ]
+}

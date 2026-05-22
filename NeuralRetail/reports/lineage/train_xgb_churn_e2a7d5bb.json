@@ -1,0 +1,42 @@
+{
+  "_producer": "neuralretail-lineage/2.0",
+  "_schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-20T14:38:46.411312+00:00",
+  "run": {
+    "runId": "e2a7d5bb-7edf-4b64-8159-931bdaee5fe1",
+    "facets": {
+      "step": "training",
+      "model": "xgb_churn",
+      "metrics": {
+        "auc": 0.98
+      }
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "train_xgb_churn",
+    "facets": {
+      "processing_engine": {
+        "_producer": "neuralretail-lineage/2.0",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-2-2/ProcessingEngineRunFacet.json",
+        "version": "3.11",
+        "name": "python"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "silver/customer_features.parquet",
+      "facets": {}
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "models/xgb_churn",
+      "facets": {}
+    }
+  ]
+}

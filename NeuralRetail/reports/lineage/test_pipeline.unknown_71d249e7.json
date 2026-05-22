@@ -1,0 +1,39 @@
+{
+  "_producer": "neuralretail-lineage/2.0",
+  "_schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-20T14:38:46.412937+00:00",
+  "run": {
+    "runId": "71d249e7-4370-4077-9fd3-24ea491cf908",
+    "facets": {
+      "dag_run_id": "test-001",
+      "airflow_task": "unknown"
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "test_pipeline.unknown",
+    "facets": {
+      "processing_engine": {
+        "_producer": "neuralretail-lineage/2.0",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-2-2/ProcessingEngineRunFacet.json",
+        "version": "3.11",
+        "name": "airflow"
+      }
+    }
+  },
+  "inputs": [],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "gold/forecast.parquet",
+      "facets": {
+        "dataQualityMetrics": {
+          "_producer": "neuralretail-lineage/2.0",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-0-2/DataQualityMetricsInputDatasetFacet.json",
+          "rowCount": 365
+        }
+      }
+    }
+  ]
+}

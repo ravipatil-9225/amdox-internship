@@ -1,0 +1,10 @@
+artifact_location: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/568996014159066033/models/m-e42768ee0ef74b12bfe97daf27b6f9e4/artifacts
+creation_timestamp: 1779286508843
+experiment_id: '568996014159066033'
+last_updated_timestamp: 1779286525828
+model_id: m-e42768ee0ef74b12bfe97daf27b6f9e4
+model_type: null
+name: prophet_model
+source_run_id: eed0856413384beda88650507b2864ed
+status: 2
+status_message: null

@@ -1,0 +1,135 @@
+# =============================================================================
+# NeuralRetail -- Istio VirtualService + DestinationRule
+# Phase 3: Shadow traffic mirroring + canary weight management
+#
+# Traffic split (configurable via environment or Helm override):
+#
+#   Shadow mode (during evaluation):
+#     - 100% traffic -> champion
+#     -  100% mirror -> shadow  (responses discarded by Istio)
+#
+#   Canary mode (after shadow validation, before full promotion):
+#     - 90% traffic  -> champion
+#     - 10% traffic  -> shadow (live canary — responses returned)
+#
+#   Promotion (challenger wins):
+#     - 100% traffic -> new champion (shadow deployment deleted)
+#
+# Toggle shadow vs canary by changing the mirror / weight values below.
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: neuralretail-vs
+  namespace: neuralretail
+  labels:
+    phase: "3"
+spec:
+  hosts:
+  - neuralretail-api          # Kubernetes service name
+  - neuralretail.internal     # Internal DNS alias
+  gateways:
+  - neuralretail-gateway
+  - mesh                      # Also applies to in-mesh traffic
+  http:
+  - name: shadow-mirror-route
+    match:
+    - uri:
+        prefix: /api/v1/predict
+    - uri:
+        prefix: /api/v1/revenue
+    route:
+    - destination:
+        host: neuralretail-champion-svc
+        port:
+          number: 80
+      weight: 100
+    # -----------------------------------------------------------------------
+    # SHADOW TRAFFIC MIRRORING
+    # Istio sends a copy of every request to the shadow pod.
+    # The shadow's response is silently discarded — zero user impact.
+    # Enable during challenger evaluation; remove for canary mode.
+    # -----------------------------------------------------------------------
+    mirror:
+      host: neuralretail-shadow-svc
+      port:
+        number: 80
+    mirrorPercentage:
+      value: 100.0            # Mirror 100% of matched requests to shadow
+
+  # Canary mode route (uncomment to activate canary, comment mirror above)
+  # - name: canary-route
+  #   match:
+  #   - uri:
+  #       prefix: /api/v1/predict
+  #   route:
+  #   - destination:
+  #       host: neuralretail-champion-svc
+  #       port:
+  #         number: 80
+  #     weight: 90
+  #   - destination:
+  #       host: neuralretail-shadow-svc
+  #       port:
+  #         number: 80
+  #     weight: 10
+
+  # Default catch-all: all other routes go to champion
+  - name: default-route
+    route:
+    - destination:
+        host: neuralretail-champion-svc
+        port:
+          number: 80
+      weight: 100
+---
+# =============================================================================
+# DestinationRule -- circuit breaking + connection pool tuning
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: neuralretail-dr
+  namespace: neuralretail
+spec:
+  host: neuralretail-champion-svc
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+    outlierDetection:
+      consecutiveGatewayErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+  subsets:
+  - name: champion
+    labels:
+      version: champion
+  - name: shadow
+    labels:
+      version: shadow
+---
+# =============================================================================
+# Istio Gateway
+# =============================================================================
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: neuralretail-gateway
+  namespace: neuralretail
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - neuralretail.internal
+    - "*.neuralretail.svc.cluster.local"

@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/716124242033818933/aaed2e41997f4e14a7db8702840b07e9/artifacts
+end_time: 1779287182630
+entry_point_name: ''
+experiment_id: '716124242033818933'
+lifecycle_stage: active
+run_id: aaed2e41997f4e14a7db8702840b07e9
+run_name: lstm_demand
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779287182556
+status: 3
+tags: []
+user_id: ravip

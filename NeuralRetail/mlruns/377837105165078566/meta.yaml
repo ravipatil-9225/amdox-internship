@@ -1,0 +1,8 @@
+artifact_location: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/377837105165078566
+creation_time: 1779286238341
+experiment_id: '377837105165078566'
+last_update_time: 1779286238341
+lifecycle_stage: active
+name: optuna_lightgbm_churn
+trace_location: null
+workspace: default

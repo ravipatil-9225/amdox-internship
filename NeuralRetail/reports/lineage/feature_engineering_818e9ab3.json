@@ -1,0 +1,61 @@
+{
+  "_producer": "neuralretail-lineage/2.0",
+  "_schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-20T14:37:22.320610+00:00",
+  "run": {
+    "runId": "818e9ab3-4024-42a9-8766-99258c568113",
+    "facets": {
+      "step": "feature_engineering",
+      "layers": [
+        "silver",
+        "gold"
+      ],
+      "row_counts": {
+        "customers": 5000,
+        "transactions": 50000
+      }
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "feature_engineering",
+    "facets": {
+      "processing_engine": {
+        "_producer": "neuralretail-lineage/2.0",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-2-2/ProcessingEngineRunFacet.json",
+        "version": "3.11",
+        "name": "python"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/customers.parquet",
+      "facets": {}
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/transactions.parquet",
+      "facets": {}
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "silver/customer_features.parquet",
+      "facets": {}
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "silver/daily_sku_features.parquet",
+      "facets": {}
+    },
+    {
+      "namespace": "neuralretail",
+      "name": "gold/product_catalog.parquet",
+      "facets": {}
+    }
+  ]
+}

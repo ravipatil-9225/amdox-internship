@@ -1,0 +1,6 @@
+artifact_location: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/362908352076669565
+creation_time: 1779201036349
+experiment_id: '362908352076669565'
+last_update_time: 1779201036349
+lifecycle_stage: active
+name: churn_xgboost_tuned

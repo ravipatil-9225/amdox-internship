@@ -1,0 +1,648 @@
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 1 
+ 
+ 
+ 
+ 
+NeuralRetail  
+AI-Powered Sales Intelligence & Predictive Analytics Platform  
+Demand Forecasting  ·  Customer Intelligence  ·  Churn Prediction  ·  Revenue Optimization  
+≤ 10%  
+MAPE Target  ≥ 0.90  
+AUC -ROC < 4 min  
+Processing  15M+ txns  
+Monthly scale  
+ 
+PROJECT CODE  AMX -DS-2026 -04 VERSION  1.0 – Industry Edition  
+DOMAIN  Data Science & Analytics  DATE April 2026  
+PREPARED FOR  Amdox – Engineering Division  CLASSIFICATION  Internal / Portfolio  
+ 
+ 
+ 
+1 Executive Overview  
+ 
+Mission statement  
+NeuralRetail is an end -to-end AI -powered sales intelligence platform designed for Amdox's enterprise clients in retail, 
+FMCG, and e -commerce. The platform ingests multi -source transactional, behavioural, and external data to produce 
+accurate demand forecas ts, actionable customer intelligence, churn predictions, and inventory optimization 
+recommendations — all served through an interactive analytics dashboard and REST API.  
+ 
+Why NeuralRetail matters for Amdox Technologies  
+Retailers globally lose an estimated $1.75 trillion annually from stockouts and overstocking. NeuralRetail positions 
+Amdox as a full -stack data intelligence partner, delivering 30 –50% stockout reduction, 15 –25% revenue uplift, and 20 –
+35% improvement in cus tomer retention. The platform's MLOps backbone ensures models stay accurate over time 
+without manual intervention — a genuine competitive differentiator.  
+ 
+ 
+1.1  Business impact targets  
+Business Objective  Metric  Target  Measurement Method  
+Stockout Reduction  Stockout frequency 
+rate ↓ 30–50% Weekly inventory audit  
+Revenue Uplift  GMV per active 
+SKU ↑ 15–25% A/B test vs baseline  
+Customer Retention  30-day churn rate  ↓ 20–35% Cohort retention analysis  
+
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 2 
+Business Objective  Metric  Target  Measurement Method  
+Forecast Accuracy  MAPE (30 -day 
+horizon)  ≤ 10%  MLflow experiment log  
+Processing Throughput  Daily batch job 
+runtime  < 4 min / 15M 
+txns Airflow task duration  
+Model Reliability  Prediction drift 
+(PSI) < 0.2 Evidently AI report  
+Dashboard Response  P95 API latency  < 1.5 seconds  Prometheus metrics  
+ 
+ 
+1.2  Target users & use cases  
+User Segment  Primary Role  Key Use Cases  
+Retail Category 
+Managers  Strategic planning  Demand forecasts, seasonal trend analysis, assortment decisions  
+Supply Chain Analysts  Operational 
+execution  Reorder automation, supplier lead -time adjustment, stockout alerts  
+CRM / Marketing Teams  Customer 
+engagement  Churn risk lists, segment campaigns, RFM -based personalization  
+Finance Controllers  Budget & margin 
+control  Revenue projections, overstock write -off reduction, margin analysis  
+C-Suite / Executives  Performance 
+oversight  KPI dashboards, predictive P&L, market share intelligence  
+Data / ML Engineers  Platform operation  MLflow tracking, retraining pipeline, model drift monitoring  
+ 
+ 
+1.3  Non -functional requirements  
+NFR Category  Requirement  Target  Validation Method  
+Model Accuracy  Demand MAPE  ≤ 10% (30 -day) MLflow + hold -out test set  
+Churn AUC -ROC Classification quality  ≥ 0.90  Stratified k -fold CV  
+Throughput  Daily batch processing  15M+ txns < 4 min  Airflow DAG timing  
+Scalability  Horizontal scale  Auto-scale on >70% 
+CPU Kubernetes HPA stress test  
+Observability  Drift detection 
+coverage  100% of production 
+models  Evidently AI dashboard  
+Availability  Dashboard uptime  99.5% monthly  UptimeRobot monitoring  
+Reproducibility  Experiment tracking  All runs logged & 
+versioned  MLflow Model Registry audit  
+Data Privacy  PII handling  Anonymized at ingestion; 
+GDPR Art. 17  Data audit log review  
+  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 3 
+2 Core Functional Requirements  
+ 
+The platform delivers eight production -grade analytical capabilities. Each requirement includes detailed 
+acceptance criteria and measurable production metrics to ensure delivery quality and business alignment.  
+ 
+ID Capability  Detailed Description & Business Value  Acceptance Criteria & Metrics  
+F-
+01 Multi -Source Data 
+Ingestion & ETL  Ingest POS transactions, e -commerce events, 
+ERP inventory feeds, weather/macro signals, 
+and competitor pricing via batch 
+(CSV/Parquet/JDBC) and streaming (Kafka) 
+connectors. Great Expectations data quality 
+gates on every run.  Zero silent failures; DQ score ≥ 
+98%; SLA < 4 min; full lineage in 
+DataHub  
+F-
+02 Advanced Customer 
+Segmentation  RFM scoring + behavioural clustering using K -
+Means, DBSCAN, and Gaussian Mixture 
+Models. Silhouette -optimized cluster count (6 –10 
+segments). Each segment labelled with 
+actionable business persona.  Silhouette score ≥ 0.55; 6 –10 
+interpretable segments; stability ≥ 
+80% week -on-week 
+F-
+03 Demand Forecasting 
+Engine  Hybrid Prophet + LSTM (PyTorch Lightning) 
+ensemble for SKU -level forecasting at daily, 
+weekly, and monthly granularity. External 
+regressors: promotions, holidays, weather. 
+Probabilistic intervals for safety -stock.  MAPE ≤ 10% on 30 -day horizon; 
+90% PI coverage ≥ 88%; weekly 
+retrain; MLflow logged  
+F-
+04 Churn Prediction & 
+Retention Engine  XGBoost + LightGBM stacked classifier with 
+SHAP explainability. Customer -level churn 
+scores with actionable retention 
+recommendations. High -risk cohort auto -export 
+to CRM.  AUC -ROC ≥ 0.90; 
+Precision@Top20% ≥ 0.78; SHAP 
+waterfall per prediction; weekly 
+batch 
+F-
+05 Revenue & Price 
+Intelligence  Price elasticity modelling via DoWhy causal 
+inference. Competitor price integration. 
+Promotion lift analysis with pre/post attribution. 
+What -if revenue simulator.  Elasticity R² ≥ 0.72; simulator 
+response < 2s; attribution 
+confidence ≥ 90%  
+F-
+06 Inventory 
+Optimization & 
+Reorder  EOQ + safety -stock driven by forecasted 
+demand and lead -time distributions. Automated 
+PO recommendations. Dead -stock risk scoring. 
+ABC-XYZ classification.  Overstock/understock ↓ 30%; PO 
+draft < 30s; dead -stock flag 
+accuracy ≥ 85%  
+F-
+07 Interactive Analytics 
+Dashboard  Streamlit 5 -page app: executive KPI, demand 
+explorer, customer hub, churn heatmap, 
+inventory health. Drill -down to SKU/customer 
+level. Export to PDF and Excel. Role -based 
+access.  Lighthouse ≥ 85; P95 load < 1.5s; 
+exports < 10s; fully mobile -
+responsive  
+F-
+08 MLOps & Automated 
+Retraining  Airflow DAGs for training, validation, and 
+promotion. Evidently AI drift reports. Auto -retrain 
+on PSI > 0.2 or MAPE degradation > 15%. 
+Champion/challenger A/B via MLflow Registry.  Drift detected < 24h; retrain < 20 
+min; zero downtime swap; full audit 
+trail 
+  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 4 
+3 Production Technology Stack – 2026  
+ 
+Every technology selection was evaluated against at least two alternatives, balancing ecosystem maturity, 
+performance, team familiarity, and total cost of ownership for a production ML platform targeting enterprise retail 
+clients.  
+ 
+Layer  Primary Technology  Version  Rationale / Alternatives Evaluated  
+Language  Python  3.12 Dominant DS/ML ecosystem; Rust considered for 
+ETL hot paths  
+Data Ingestion  Apache Spark + Delta Lake  3.5 / 3.0  Distributed ETL for 15M+ txns; Polars evaluated for 
+small batches  
+Data Quality  Great Expectations + Soda 
+Core 0.18 / 
+0.20 Automated DQ gates; dbt tests also integrated  
+Data Lineage  OpenLineage + Marquez  1.18 End-to-end dataset provenance; DataHub as 
+alternative  
+Feature Store  Feast (Redis + S3 offline)  0.40 Consistent train/serve features; Tecton evaluated  
+Data Processing  Pandas + NumPy + Polars  2.2 / 
+1.26 / 
+0.20 Pandas for EDA; Polars for 10x faster batch 
+transforms  
+ML Framework  Scikit -learn + XGBoost + 
+LightGBM  1.4 / 2.1 
+/ 4.3 Tree ensembles for tabular; CatBoost evaluated  
+Deep Learning  PyTorch Lightning + 
+TorchForecast  2.3 / 1.4  LSTM/TFT models; TensorFlow evaluated  
+Forecasting  Prophet + NeuralProphet + 
+TimeGPT  1.1 / 0.9 
+/ API Hybrid: statistical baseline + DL + foundation model  
+Explainability  SHAP + LIME + Captum  0.46 / 
+0.15 / 
+0.7 SHAP for tree models; Captum for PyTorch; LIME 
+fallback  
+Causal Inference  DoWhy + EconML  0.11 / 
+0.15 Price elasticity & promotion attribution; CausalML 
+evaluated  
+Experiment 
+Tracking  MLflow  2.13 Experiments, artifact store, Model Registry; W&B 
+evaluated  
+Hyperparameter 
+Tuning  Optuna + Ray Tune  3.6 / 
+2.32 Optuna for single -node; Ray Tune for distributed 
+HPO 
+Drift Detection  Evidently AI  0.4 Data + model drift reports; Nannyml evaluated  
+Pipeline 
+Orchestration  Apache Airflow  2.9 DAG scheduling + retry + alerting; Prefect evaluated  
+Dashboard  Streamlit + Plotly  1.35 / 
+5.22 Rapid interactive analytics; Dash / Grafana 
+evaluated  
+API Service  FastAPI + Uvicorn  0.111 / 
+0.29 Async REST for scoring; Flask evaluated  
+Database  PostgreSQL 17 + 
+TimescaleDB  17 / 
+2.15 ACID + time -series; ClickHouse for analytics 
+warehouse  
+Cache  Redis 8  8.0 Feature cache + session; Dragonfly evaluated  
+Containerization  Docker (Distroless base)  27 Minimal attack surface; Podman -compatible  
+Orchestration  Kubernetes + Helm 3  1.31 EKS/GKE deployment; ArgoCD GitOps delivery  
+CI/CD  GitHub Actions + ArgoCD  — Matrix test → build → push → deploy pipeline  
+Monitoring  Prometheus + Grafana + 
+Loki 2.53 / 
+11.1 / 
+3.0 Metrics + dashboards + logs; OpenTelemetry traces  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 5 
+Layer  Primary Technology  Version  Rationale / Alternatives Evaluated  
+Infrastructure  Terraform + Terragrunt  1.9 / 
+0.66 IaC for AWS / GCP multi -cloud; Pulumi evaluated  
+Cloud Target  AWS (primary) / GCP 
+(secondary)  — SageMaker for managed training; Vertex AI 
+evaluated  
+  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 6 
+4 Architecture Overview  
+ 
+4.1  MLOps pipeline architecture  
+The platform follows a Lakehouse + Feature Store + MLOps architecture with five distinct colour -coded layers: 
+data ingestion, feature engineering, model training and registry, serving and dashboard, and monitoring with 
+automated feedback.  
+ 
+ 
+Figure 4.1 – NeuralRetail MLOps Pipeline Architecture  |  Amdox Technologies  |  April 2026  
+
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 7 
+4.1a  Layer reference  
+Layer  Colour  Key Components  Output / Artefact  
+Data Sources  Teal POS transactions, e -commerce events, ERP feeds, 
+weather API, competitor pricing  Raw data partitions in Delta 
+Lake bronze layer  
+Feature 
+Engineering  Purple  Great Expectations DQ gates, Feast feature store 
+(Redis + S3), Polars transforms, OpenLineage 
+lineage  Validated feature views; 
+point -in-time training 
+datasets  
+Model Training & 
+Registry  Coral Prophet + LSTM ensemble, XGBoost/LightGBM 
+churn, MLflow experiments, SHAP, Optuna HPO  Registered models in 
+MLflow; 
+champion/challenger gates  
+Serving & 
+Dashboard  Blue FastAPI REST scoring API, Streamlit 5 -page 
+dashboard, batch score export, PDF/Excel reports  Real-time predictions; live 
+KPI panels; exportable 
+reports  
+Monitoring & 
+Feedback  Amber  Evidently AI drift (PSI), Prometheus + Grafana 
+metrics, Loki logs, auto -retrain Airflow trigger  HTML drift reports; retrain 
+DAG on PSI > 0.2; 
+PagerDuty alerts  
+ 
+ 
+4.2  Data flow patterns  
+Pattern  Components Involved  Trigger  Output Artefact  
+Batch ETL + DQ  Spark → Delta Lake → Great 
+Expectations  Airflow daily 02:00 
+UTC Validated Parquet partitions 
++ DQ report  
+Feature Materialisation  Feast → Redis (online) + S3 
+(offline)  Post-ETL DAG step  Versioned feature views in 
+Feature Store  
+Forecasting Training  Feature Store → Prophet/LSTM 
+→ MLflow  Weekly Sunday 
+03:00 UTC  Registered model in MLflow 
+with metrics  
+Churn Scoring Batch  Feature Store → XGBoost → 
+PostgreSQL  Daily 05:00 UTC  customer_churn_scores 
+table + Airflow alert  
+Drift Check  Production predictions → 
+Evidently AI  Daily post -scoring  HTML drift report + PSI 
+metric to Prometheus  
+Auto -Retrain Trigger  PSI > 0.2 or MAPE ↑ > 15% → 
+Airflow  Drift alert webhook  New challenger model 
+registered in MLflow  
+Dashboard Refresh  PostgreSQL + Redis → 
+Streamlit + FastAPI  On-demand + SSE 
+push Live KPI panels, charts, 
+export files  
+ 
+ 
+4.3  Model selection & evaluation framework  
+Model / Task  Algorithm  Primary Metric  Threshold  Explainability  
+Demand 
+Forecasting  Prophet + LSTM 
+Ensemble  MAPE, RMSE, 90% -
+PI Coverage  MAPE ≤ 10%  Component 
+decomposition + residuals  
+Churn 
+Classification  XGBoost + 
+LightGBM Stack  AUC -ROC, 
+Precision@20%, F1  AUC ≥ 0.90  SHAP waterfall + 
+beeswarm plots  
+Customer 
+Segmentation  K-Means + DBSCAN 
++ GMM  Silhouette, Davies -
+Bouldin  Silhouette ≥ 
+0.55 Cluster centroid profiles + 
+radar charts  
+Price Elasticity  OLS + Ridge + 
+DoWhy IDA  R², RMSE, Causal 
+Estimand CI  R² ≥ 0.72  Elasticity coefficient + 
+sensitivity  
+Inventory EOQ  Analytical EOQ + 
+Simulation  Stockout rate, 
+holding cost  Stockout ↓ 
+30% Parameter sensitivity + 
+scenario table  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 8 
+Model / Task  Algorithm  Primary Metric  Threshold  Explainability  
+Revenue 
+Forecasting  LightGBM + Prophet 
+Hybrid  MAPE, directional 
+accuracy  MAPE ≤ 8%  Feature importance + 
+partial dependence  
+ 
+5 Granular 28 -Day Execution Plan  
+ 
+Week 1 – Data discovery, ingestion & feature engineering  
+Day 1 – Project setup & data discovery  
+• Stakeholder requirements workshop: define KPI targets, data sources, and success criteria  
+• Competitor analysis: Databricks Retail AI, Google Cloud Retail, AWS Forecast, Azure Synapse  
+• Dataset acquisition: Kaggle RetailRocket, M5 Forecasting Competition, UCI Online Retail II  
+• Monorepo setup: Python + Poetry + Ruff + Black + pre -commit hooks + conventional commits  
+• Docker Compose local stack: PostgreSQL 17, Redis 8, MLflow, Airflow, Streamlit  
+Day 2 – Data ingestion pipeline  
+• Spark ingestion job: read CSV/Parquet sources → Delta Lake bronze layer with schema enforcement  
+• Great Expectations suite: define expectations on row counts, nullability, value ranges, foreign keys  
+• OpenLineage metadata emission to local Marquez instance for lineage tracking  
+• Airflow DAG skeleton: ingest_bronze → validate_dq → notify_on_failure  
+• Unit tests for ingestion functions; mock S3 with moto for CI compatibility  
+Day 3 – EDA & feature engineering  
+• EDA notebook: distribution analysis, outlier detection, correlation heatmap, seasonality decomposition  
+• Feature engineering: RFM scores, rolling mean/std demand (7/14/30 days), lag features (t -1, t-7, t-14) 
+• Date features: day -of-week, week -of-year, holiday flags, promotional event flags  
+• External data join: weather (Open -Meteo API), macro CPI index by product category  
+• Silver layer Delta table: clean, enriched, feature -ready dataset with data versioning  
+Day 4 – Feature store & data quality  
+• Feast feature definitions: customer, product, and transaction feature views  
+• Online store materialization to Redis for low -latency serving at inference time  
+• Offline store to S3 Parquet for training dataset retrieval with point -in-time joins  
+• Great Expectations checkpoint integration into Airflow with Slack alerting on DQ failures  
+• Data profiling report: YData Profiling HTML export for stakeholder review  
+Day 5 – Baseline models & MLflow setup  
+• MLflow tracking server setup: PostgreSQL backend + S3 artifact store + experiment UI  
+• Baseline demand model: Prophet with default seasonality; log MAPE, RMSE to MLflow  
+• Baseline churn model: Logistic Regression; log AUC -ROC, F1, confusion matrix to MLflow  
+• MLflow Model Registry: register first baseline models as 'Staging' for version tracking  
+• Experiment comparison dashboard in MLflow UI; document baseline as benchmark  
+Day 6 – Time -series deep dive  
+• Stationarity tests: ADF, KPSS; differencing and log -transform where needed  
+• STL decomposition: trend, seasonality, residual analysis for top -20 revenue SKUs  
+• Autocorrelation and PACF analysis to inform ARIMA order selection  
+• Multi -seasonality detection: weekly + annual patterns; Prophet with dual seasonality  
+• Hyperparameter grid search for Prophet: changepoint_prior_scale, seasonality_mode  
+Day 7 – Week 1 checkpoint  
+• Deliverables: EDA HTML report, cleaned Delta Lake silver table, baseline models in MLflow  
+• Internal review: data quality scores, baseline MAPE, AUC -ROC benchmarks vs targets  
+• ADR -001: Feature store strategy (Feast vs inline computation) documented in Notion  
+• Update sprint board; resolve any data access blockers; Week 2 plan confirmed  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 9 
+ 
+Week 2 – Advanced ML models & ensemble construction  
+Day 8 – LSTM forecasting model  
+• PyTorch Lightning LSTM: window -based input (28 -day lookback), multi -step output (1/7/30 day)  
+• TorchForecast TFT (Temporal Fusion Transformer) as secondary deep learning architecture  
+• Training loop: gradient clipping, learning rate scheduler (CosineAnnealingWarmRestarts)  
+• Probabilistic output: quantile regression (q10, q50, q90) for safety -stock interval estimation  
+• MLflow autolog: hyperparameters, training curves, validation MAPE per forecast horizon  
+Day 9 – Prophet + LSTM ensemble  
+• Ensemble strategy: weighted average with weights optimized by Optuna on validation set  
+• NeuralProphet as intermediate model bridging statistical and deep learning approaches  
+• TimeGPT zero -shot forecast as benchmark comparison (API call, no fine -tuning required)  
+• Final ensemble MAPE target: ≤ 10% on 30 -day horizon across all ABC -classified SKU tiers  
+• Confidence interval calibration: isotonic regression on quantile outputs for reliability  
+Day 10 – Churn prediction model  
+• Feature set: RFM metrics, purchase frequency decay, category switching signals, recency cliff  
+• XGBoost: Bayesian hyperparameter optimization with Optuna (100 trials, 5 -fold stratified CV)  
+• LightGBM: DART boosting mode for regularization; benchmark vs XGBoost on AUC -ROC 
+• Stacking: meta -learner (Logistic Regression) on XGB + LGBM + RF out -of-fold predictions  
+• Class imbalance: SMOTE -NC oversampling + scale_pos_weight; evaluate at threshold=0.35  
+Day 11 – SHAP explainability & model interpretation  
+• SHAP TreeExplainer for XGBoost churn model: global feature importance + local explanations  
+• SHAP beeswarm, waterfall, and dependence plots for top -10 predictive features  
+• LIME explanations as secondary interpretability check for model robustness validation  
+• Captum integrated gradients for LSTM temporal feature attribution visualization  
+• Business narrative: translate SHAP values into plain -language retention action recommendations  
+Day 12 – Customer segmentation & RFM intelligence  
+• K-Means: Elbow + Silhouette analysis (k=6 –10); final k selected by Davies -Bouldin index  
+• DBSCAN: auto eps via k -distance graph; identify outlier / ultra -VIP customer clusters  
+• Gaussian Mixture Models: probabilistic segment membership for borderline customers  
+• Segment profiling: revenue contribution, churn risk, category affinity, CLV estimate per cluster  
+• CRM export: high -churn -risk segment with SHAP -based retention action codes  
+Day 13 – Price elasticity & revenue intelligence  
+• Log-log OLS regression: price vs demand per category with promotion dummy variables  
+• DoWhy causal graph: identify and adjust for confounders (season, competitor price, ad spend)  
+• EconML Double ML for heterogeneous treatment effects of price changes across segments  
+• Promotion lift analysis: pre/post attribution with synthetic control method  
+• What -if revenue simulator: adjust price/promotion inputs → see projected demand and revenue impact  
+Day 14 – Week 2 checkpoint  
+• Deliverables: ensemble forecast (MAPE ≤ 10%), churn model (AUC ≥ 0.90), segmentation, elasticity model  
+• MLflow Model Registry: promote best models from Staging → Production after validation gate  
+• Champion/challenger: new model must beat current champion by ≥ 5% on unseen hold -out set  
+• Weekly model report: MAPE by SKU tier, AUC by cohort, segment stability — logged to MLflow  
+  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 10 
+Week 3 – Dashboard, API layer & MLOps pipeline  
+Day 15 – Streamlit dashboard architecture  
+• Multi -page layout: Executive Overview / Demand Intelligence / Customer Hub / Inventory / MLOps Monitor  
+• Authentication: Streamlit -Authenticator with role -based page access (Admin, Analyst, Viewer roles)  
+• Navigation: session state management, query parameter routing, sharable bookmark support  
+• Amdox brand design system: orange palette (#E84E1B, #F7941D, #FBBA13), custom CSS, responsive layout  
+• Plotly charts: interactive time -series, heatmaps, scatter with trendlines, Sankey diagrams  
+Day 16 – Demand forecast dashboard module  
+• SKU-level forecast explorer: date range picker, category/region filter, SKU typeahead search  
+• Forecast chart: actual vs predicted with confidence interval bands (Plotly filled area)  
+• What -if simulator: adjust promotion flag / weather / price coefficient → see demand impact live  
+• Forecast accuracy leaderboard: MAPE ranking table by SKU, category, and store with trend  
+• Export: forecast table to Excel, chart to PNG, full report to PDF (ReportLab generation)  
+Day 17 – Customer intelligence & churn module  
+• Churn risk heatmap: customer segments × risk decile matrix with click -through drill -down 
+• Individual customer 360 view: SHAP waterfall chart, purchase timeline, segment membership badge  
+• Segment comparison: radar chart of RFM dimensions across all clusters with toggle overlay  
+• Retention action board: auto -generated plain -language recommendations per churn risk tier  
+• Campaign builder UI: one -click CRM CSV export of selected risk segment with action codes  
+Day 18 – Inventory optimization module  
+• Inventory health scorecard: ABC -XYZ classification matrix, stockout risk by SKU, dead -stock flags  
+• EOQ calculator UI: input lead time and holding cost → recommended reorder quantity + safety stock  
+• Reorder alert table: SKUs below safety stock threshold with urgency scoring and supplier info  
+• Overstock risk panel: SKUs projected to exceed capacity + liquidation/markdown recommendations  
+• Supplier lead -time tracker: historical variance analysis → buffer stock adjustment suggestions  
+Day 19 – FastAPI scoring API  
+• REST endpoints: /predict/demand, /predict/churn, /segment/score, /inventory/reorder, /health  
+• Request/response validation: Pydantic v2 schemas with strict type enforcement and field -level docs  
+• Model loading from MLflow production URI: no code dependency on training environment  
+• Redis caching: cache SKU -level forecasts for 1 hour to reduce redundant model inference calls  
+• Auth: API key + JWT bearer tokens; sliding -window rate limiting: 100 req/min per client key  
+Day 20 – Evidently AI drift monitoring  
+• Data drift report: PSI and Kolmogorov -Smirnov test on all input features vs training distribution  
+• Model performance monitoring: MAPE tracking over rolling 7 -day window with trend alerting  
+• Prediction drift: Jensen -Shannon divergence on forecast output distributions  
+• Automated report: HTML saved to S3 + PSI/MAPE summary metrics exported to Prometheus  
+• Alerting: Airflow sensor polls Prometheus; triggers retraining DAG automatically if PSI > 0.2  
+Day 21 – Week 3 checkpoint  
+• Deliverables: 5 -page Streamlit dashboard, FastAPI scoring service, Evidently AI monitoring setup  
+• End-to-end smoke test: ingest → feature → train → predict → dashboard display → export  
+• Performance: Lighthouse score ≥ 85 on dashboard; API P95 latency < 1.5s under load  
+• Security scan: Trivy on all Docker images; Bandit static analysis on Python source code  
+ 
+Week 4 – Deployment, production polish & delivery  
+Day 22 – Containerisation & Docker optimisation  
+• Multi -stage Dockerfiles: builder stage (full deps) → runtime stage (Distroless Python)  
+• Separate images: airflow -worker, mlflow -server, streamlit -app, fastapi -scorer  
+• docker -compose.prod.yml: health checks, resource limits, named volumes, restart policies  
+• Container security: non -root user, read -only filesystem, dropped Linux capabilities (CAP_DROP ALL)  
+• Image size optimisation: target < 500 MB per service via .dockerignore and layer caching  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 11 
+Day 23 – Kubernetes & Helm deployment  
+• Helm chart: values.yaml + templates for Deployment, Service, Ingress, HPA, PodDisruptionBudget  
+• Kubernetes security: NetworkPolicy (deny -all + selective allow), ResourceQuota per namespace  
+• Horizontal Pod Autoscaler: scale FastAPI on >70% CPU; Streamlit on >60% memory utilization  
+• Sealed Secrets for all credentials; ConfigMap for non -sensitive environment configuration  
+• minikube / kind local cluster validation; ArgoCD Application manifest committed to GitOps repo  
+Day 24 – CI/CD pipeline  
+• GitHub Actions matrix: lint (ruff/black) → unit tests (pytest) → integration tests → Docker build  
+• Model validation gate in CI: runs hold -out evaluation; fails if MAPE > 12% or AUC < 0.88  
+• Docker push to ECR/GCR; image tagged with git SHA + semantic version for traceability  
+• ArgoCD GitOps: staging auto -deploy on merge to main; production requires manual approval gate  
+• Slack notifications: pipeline status + model metric summary posted on each run completion  
+Day 25 – Cloud deployment  
+• Frontend: Streamlit on AWS EC2 / Streamlit Community Cloud with Cloudflare HTTPS proxy  
+• API: FastAPI on AWS ECS Fargate / Railway / Fly.io with auto -scaling and zero -downtime deploys  
+• MLflow: managed on EC2 + RDS PostgreSQL backend + S3 artifact store with lifecycle policies  
+• Airflow: MWAA (Managed Airflow) or self -hosted on EKS with Celery executor and Redis broker  
+• Database: RDS Aurora Serverless v2 + ElastiCache Redis; custom domain + Let's Encrypt TLS  
+Day 26 – Observability stack  
+• Prometheus scrape configs: FastAPI /metrics, Airflow StatsD, model latency histograms  
+• Grafana dashboards: model performance over time, API latency P50/P95/P99, drift scores, SLA  
+• Loki log aggregation: structured JSON logs from all services with correlation ID propagation  
+• OpenTelemetry SDK: distributed traces from API request → feature fetch → model inference  
+• PagerDuty alerts: drift breach, API error rate > 1%, Airflow SLA miss, retraining failure  
+Day 27 – Demo video & documentation  
+• Record 5 –8 min scenario -based demo: end -to-end from raw data ingestion to dashboard insights  
+• Demo scenarios: demand forecast for seasonal SKU, churn risk intervention, automated reorder trigger  
+• README.md: architecture diagram, docker -compose local setup, environment variables table, screenshots  
+• Jupyter notebooks: EDA walkthrough, model training with inline comments, evaluation analysis  
+• Model cards: training data summary, metrics, bias evaluation, intended use — one per registered model  
+Day 28 – Final QA, submission & personal reflection  
+• Cross -browser QA: Chrome, Firefox, Safari, Edge; mobile responsive validation at 375px / 768px  
+• Final Lighthouse run: Performance ≥ 85, Accessibility ≥ 90, Best Practices ≥ 90  
+• k6 load test: 200 concurrent virtual users on dashboard + API; validate P95 < 1.5s sustained  
+• Submission package: PDF report + GitHub repo + live HTTPS demo URL + video link  
+• Personal Reflection: key learnings, MLOps challenges overcome, future roadmap ideas documented  
+  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 12 
+6 Security, Ethics & Data Privacy  
+ 
+Domain  Controls Implemented  Standard / Tool  
+Data Anonymization  PII masked at ingestion (customer_id SHA -256 hashed, 
+email/phone scrubbed); k -anonymity check on exports  GDPR Art. 5, 25  
+Access Control  Role-based dashboard access; API key + JWT for scoring; 
+HashiCorp Vault for secret management  NIST 800 -53 AC -6 
+Input Validation  Pydantic v2 strict schemas on all API inputs; SQLAlchemy ORM 
+prevents SQL injection  OWASP A03:2021  
+Model Fairness  Bias audit: churn model evaluated across demographic proxies 
+(region, age group); equal opportunity metric  EU AI Act Art. 10  
+Dependency Security  Snyk SCA scan in CI; pip -audit weekly; Renovate bot for automatic 
+dependency version updates  CIS Controls v8  
+Secrets Management  HashiCorp Vault / AWS Secrets Manager; Sealed Secrets in 
+Kubernetes; zero hardcoded secrets policy  CIS K8s 
+Benchmark  
+Audit Logging  Immutable log: all model predictions + dashboard exports 
+timestamped and hash -chained  SOC 2 CC7.2  
+Container Security  Trivy scan in CI; Distroless base images; non -root user; read -only 
+filesystem; CAP_DROP ALL  CIS Docker 
+Benchmark  
+ 
+ 
+7 MLOps Maturity & Best Practices  
+ 
+MLOps Dimension  Practice Applied  Tools  
+Reproducibility  Random seed fixed, data version pinned, environment locked via 
+requirements.txt + Poetry lock  MLflow, DVC  
+Data Versioning  Delta Lake time -travel; dataset snapshots versioned in DVC; 
+hash -based artifact naming in MLflow  Delta Lake, DVC  
+Model Versioning  Semantic versioning in MLflow Model Registry; 
+champion/challenger stage gates with metrics threshold  MLflow Registry  
+Automated Retraining  Airflow DAG triggered by Evidently AI drift alert (PSI > 0.2) or 
+scheduled weekly Sunday 03:00 UTC  Airflow, Evidently 
+AI 
+A/B Deployment  Shadow mode: new model runs alongside champion; promote 
+only if ≥ 5% improvement on hold -out set  MLflow, Istio  
+Monitoring  Data drift, model performance drift, and prediction distribution 
+tracked daily with auto -alerting  Evidently AI, 
+Prometheus  
+Testing  Unit tests for feature functions; integration tests for Airflow DAGs; 
+model regression tests in CI gate  pytest, Great 
+Expectations  
+Documentation  Model cards per registered model: training data, metrics, bias 
+evaluation, intended use, limitations  MLflow, Notion  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 13 
+ 
+8 Evaluation Criteria (100 -Point Scale)  
+ 
+Category  Points  Focus Areas  
+Innovation & Business Problem Solving  15 Original analytical approaches, 
+quantified KPIs, thoughtful feature 
+engineering decisions  
+Technical Depth & Model Quality  25 Algorithm selection rigor, ensemble 
+design, hyperparameter 
+optimization, evaluation 
+methodology  
+MLOps & Production Readiness  20 Drift detection, automated 
+retraining, MLflow tracking, CI/CD, 
+reproducible pipelines  
+Documentation Quality  20 Professional PDF report, 
+architecture diagrams, model 
+cards, README depth and clarity  
+Deployment & Live Demo Reliability  10 Stable HTTPS demo, fast load, 
+functional without sign -up, k6 load 
+test evidence  
+Presentation & Visual Polish  10 Demo video quality, dashboard UX, 
+chart clarity, storytelling 
+effectiveness  
+TOTAL  100  
+ 
+ 
+9 Submission Guidelines  
+ 
+# Deliverable  Format / Location  Required?  Weight  
+1 Project Report (this 
+document)  1 PDF, A4, 10 –18 pages  Yes 25% 
+2 Live Public Demo URL  HTTPS (Streamlit Cloud / Hugging 
+Face / AWS)  Yes 30% 
+3 GitHub Repository  Public repo with notebooks, src/, 
+tests/, Dockerfile  Yes 20% 
+4 README.md  Setup guide, architecture, 
+screenshots, video link, model 
+metrics  Yes 15% 
+5 Demo Video  5–8 min, YouTube Unlisted / Loom / 
+Google Drive  Yes 10% 
+ 
+Naming convention: YourName_NeuralRetail_AmdoxDS_April2026.pdf / .zip  
+Submission: Via the Amdox Technologies project dashboard only — no email submissions. Late 
+submissions are automatically disqualified from stipend consideration.  
+File size limits: ZIP ≤ 500 MB  |  Individual PDFs ≤ 12 MB  |  No private API keys required to run demo.  
+ 
+Stand -out practices (highly recommended)  
+• Include SHAP summary plots, drift simulation screenshots, and model comparison tables in the report  
+• Record a live drift detection + auto -retraining demonstration in the demo video  
+• Add a Model Card for each registered model in MLflow (training data, metrics, bias evaluation)  
+ NeuralRetail – AI Sales Intelligence  |  Amdox Technologies  |  April 2026  
+AMX -DS-2026 -04  |  Confidential  |  Data Science & Analytics  Page 14 
+• Show Evidently AI HTML drift report as a screenshot or embedded link in README  
+• Document MLOps maturity level: describe how your pipeline would scale to 100x data volume  
+• End the report with a Personal Reflection: key learnings, challenges overcome, future roadmap  
+ 
+ 
+Crafted with precision and modern data science principles  
+Amdox Technologies  ·  Data Science & Analytics Domain  ·  April 2026  
+ 

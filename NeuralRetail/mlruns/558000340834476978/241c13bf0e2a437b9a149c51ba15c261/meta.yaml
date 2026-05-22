@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/558000340834476978/241c13bf0e2a437b9a149c51ba15c261/artifacts
+end_time: 1779287072278
+entry_point_name: ''
+experiment_id: '558000340834476978'
+lifecycle_stage: active
+run_id: 241c13bf0e2a437b9a149c51ba15c261
+run_name: stacked_xgb_lgb_weighted
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779287069886
+status: 3
+tags: []
+user_id: ravip

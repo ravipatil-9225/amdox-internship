@@ -1,0 +1,109 @@
+# =============================================================================
+# NeuralRetail -- Champion Deployment (Stable / Production)
+# Phase 3: Shadow deployment pattern
+#
+# champion:   100% of live traffic  (current champion model)
+# shadow:     Mirrored traffic only (challenger model being evaluated)
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neuralretail-champion
+  namespace: neuralretail
+  labels:
+    app: neuralretail
+    version: champion
+    track: stable
+    phase: "3"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: neuralretail
+      version: champion
+  template:
+    metadata:
+      labels:
+        app: neuralretail
+        version: champion
+        track: stable
+      annotations:
+        # Prometheus scraping
+        prometheus.io/scrape: "true"
+        prometheus.io/port:   "8000"
+        prometheus.io/path:   "/metrics"
+        # Istio sidecar
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: neuralretail-api
+        image: neuralretail/fastapi:champion-latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+        env:
+        - name: MODEL_VERSION
+          value: "champion"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: database_url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets
+              key: redis_url
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            configMapKeyRef:
+              name: neuralretail-config
+              key: mlflow_tracking_uri
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 20
+        volumeMounts:
+        - name: model-store
+          mountPath: /app/models
+          readOnly: true
+      volumes:
+      - name: model-store
+        persistentVolumeClaim:
+          claimName: model-store-pvc
+---
+# Champion Service (receives all live traffic from VirtualService)
+apiVersion: v1
+kind: Service
+metadata:
+  name: neuralretail-champion-svc
+  namespace: neuralretail
+  labels:
+    app: neuralretail
+    version: champion
+spec:
+  type: ClusterIP
+  selector:
+    app: neuralretail
+    version: champion
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8000

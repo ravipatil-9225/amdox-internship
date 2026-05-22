@@ -1,0 +1,8 @@
+artifact_location: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/150517601633444476
+creation_time: 1779289474512
+experiment_id: '150517601633444476'
+last_update_time: 1779289474512
+lifecycle_stage: active
+name: drift_monitoring
+trace_location: null
+workspace: default

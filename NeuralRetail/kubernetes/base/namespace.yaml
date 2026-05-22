@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: neuralretail
+  labels:
+    istio-injection: enabled
+    project: neuralretail

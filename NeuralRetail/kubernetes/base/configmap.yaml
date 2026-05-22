@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: neuralretail
+  labels:
+    istio-injection: enabled
+    project: neuralretail
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: neuralretail-config
+  namespace: neuralretail
+data:
+  mlflow_tracking_uri: "sqlite:///mlruns/mlflow.db"
+  feast_online_store: "sqlite"
+  drift_threshold: "0.20"
+  champion_model: "xgb_churn"
+  challenger_model: "xgb_churn_challenger"
+  shadow_mode: "enabled"
+  airflow_retraining_dag: "model_retraining_pipeline"
+  log_level: "INFO"

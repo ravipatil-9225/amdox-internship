@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX%20INTERNSHIP/NeuralRetail/mlruns/909527394154786132/096cf52383454854bc4aa797f39605bb/artifacts
+end_time: 1779286297130
+entry_point_name: ''
+experiment_id: '909527394154786132'
+lifecycle_stage: active
+run_id: 096cf52383454854bc4aa797f39605bb
+run_name: tft_demand_native
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779286296890
+status: 3
+tags: []
+user_id: ravip

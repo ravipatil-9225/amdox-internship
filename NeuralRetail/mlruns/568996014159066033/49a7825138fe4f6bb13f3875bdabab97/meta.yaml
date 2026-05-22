@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/568996014159066033/49a7825138fe4f6bb13f3875bdabab97/artifacts
+end_time: 1779291908092
+entry_point_name: ''
+experiment_id: '568996014159066033'
+lifecycle_stage: active
+run_id: 49a7825138fe4f6bb13f3875bdabab97
+run_name: nimble-slug-385
+run_uuid: 49a7825138fe4f6bb13f3875bdabab97
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779291906506
+status: 3
+tags: []
+user_id: ravip

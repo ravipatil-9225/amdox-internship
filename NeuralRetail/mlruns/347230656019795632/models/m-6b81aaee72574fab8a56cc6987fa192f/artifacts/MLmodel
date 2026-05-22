@@ -1,0 +1,22 @@
+artifact_path: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/347230656019795632/models/m-6b81aaee72574fab8a56cc6987fa192f/artifacts
+flavors:
+  python_function:
+    data: model.ubj
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.10.0
+  xgboost:
+    code: null
+    data: model.ubj
+    model_class: xgboost.sklearn.XGBClassifier
+    model_format: ubj
+    xgb_version: 3.2.0
+mlflow_version: 3.12.0
+model_id: m-6b81aaee72574fab8a56cc6987fa192f
+model_size_bytes: 74632
+model_uuid: m-6b81aaee72574fab8a56cc6987fa192f
+prompts: null
+run_id: 1fca3fffebd7447ab64d05d1e9dc891c
+utc_time_created: '2026-05-20 14:16:02.495302'

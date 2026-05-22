@@ -1,0 +1,40 @@
+{
+  "_producer": "neuralretail-lineage/2.0",
+  "_schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-20T14:37:08.771486+00:00",
+  "run": {
+    "runId": "4dbbfc7b-7c48-4142-8f67-9f5b92a991b2",
+    "facets": {
+      "batch_size": 50,
+      "valid_records": 48,
+      "dlq_records": 2
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "kafka_ingestion_mock",
+    "facets": {
+      "processing_engine": {
+        "_producer": "neuralretail-lineage/2.0",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-2-2/ProcessingEngineRunFacet.json",
+        "version": "3.11",
+        "name": "python"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "mock",
+      "name": "mock://pos_transactions",
+      "facets": {}
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "bronze/transactions.parquet",
+      "facets": {}
+    }
+  ]
+}

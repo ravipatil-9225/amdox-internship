@@ -1,0 +1,180 @@
+# =============================================================================
+# NeuralRetail -- Prometheus Alert Rules (SLO Enforcement)
+# Phase 4: P95 latency SLO + error rate + drift alerts
+#
+# Deploy: kubectl apply -f kubernetes/monitoring/prometheus-rules.yaml
+# Or add to prometheus.yml rule_files section.
+# =============================================================================
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: neuralretail-slo-alerts
+  namespace: neuralretail
+  labels:
+    release: prometheus
+    role: alert-rules
+spec:
+  groups:
+
+  # ---------------------------------------------------------------------------
+  # SLO Group: P95 Latency < 500ms on prediction endpoints
+  # ---------------------------------------------------------------------------
+  - name: neuralretail.slo.latency
+    interval: 30s
+    rules:
+
+    # P95 latency SLO -- fires if 5-min p95 exceeds 500ms
+    - alert: NeuralRetailP95LatencyBreach
+      expr: |
+        histogram_quantile(0.95,
+          rate(neuralretail_http_request_duration_seconds_bucket{
+            endpoint="/api/v1/predict/*"
+          }[5m])
+        ) > 0.5
+      for: 5m
+      labels:
+        severity: critical
+        team: ml-platform
+        slo: latency
+      annotations:
+        summary: "P95 prediction latency exceeds 500ms SLO"
+        description: >
+          The 95th percentile latency for /api/v1/predict/* is
+          {{ printf "%.0f" (mul $value 1000) }}ms over the last 5 minutes.
+          SLO target is 500ms. Investigate model loading times or resource saturation.
+        runbook: "https://wiki.neuralretail.internal/runbooks/latency-slo"
+        dashboard: "https://grafana.neuralretail.internal/d/latency"
+
+    # P99 latency warning
+    - alert: NeuralRetailP99LatencyHigh
+      expr: |
+        histogram_quantile(0.99,
+          rate(neuralretail_http_request_duration_seconds_bucket{
+            endpoint="/api/v1/predict/*"
+          }[5m])
+        ) > 1.0
+      for: 3m
+      labels:
+        severity: warning
+        team: ml-platform
+        slo: latency
+      annotations:
+        summary: "P99 prediction latency exceeds 1000ms"
+        description: >
+          P99 latency for prediction endpoints is
+          {{ printf "%.0f" (mul $value 1000) }}ms — approaching SLO breach territory.
+
+    # Inference throughput anomaly -- sudden drop in request rate
+    - alert: NeuralRetailThroughputDrop
+      expr: |
+        rate(neuralretail_http_requests_total{endpoint="/api/v1/predict/*"}[5m]) <
+        0.5 * avg_over_time(
+          rate(neuralretail_http_requests_total{endpoint="/api/v1/predict/*"}[5m])[1h:]
+        )
+      for: 10m
+      labels:
+        severity: warning
+        team: ml-platform
+      annotations:
+        summary: "Prediction request rate dropped by 50%"
+        description: >
+          Current request rate {{ $value | humanizePercentage }} below 1-hour average.
+          Possible cause: upstream service outage or deployment issue.
+
+  # ---------------------------------------------------------------------------
+  # Error Rate Group
+  # ---------------------------------------------------------------------------
+  - name: neuralretail.slo.errors
+    rules:
+
+    - alert: NeuralRetailHighErrorRate
+      expr: |
+        rate(neuralretail_http_requests_total{status_code=~"5.."}[5m]) /
+        rate(neuralretail_http_requests_total[5m]) > 0.01
+      for: 5m
+      labels:
+        severity: critical
+        team: ml-platform
+        slo: availability
+      annotations:
+        summary: "Error rate exceeds 1% SLO"
+        description: >
+          HTTP 5xx error rate is {{ printf "%.2f%%" (mul $value 100) }}
+          over the last 5 minutes. SLO target is < 1%.
+
+    - alert: NeuralRetailModelInferenceErrors
+      expr: |
+        rate(neuralretail_http_requests_total{
+          endpoint="/api/v1/predict/*", status_code="500"
+        }[5m]) > 0.05
+      for: 3m
+      labels:
+        severity: critical
+        team: ml-platform
+      annotations:
+        summary: "Model inference returning 500 errors"
+        description: >
+          Prediction endpoint returning >3 errors/minute. Model may be
+          corrupted or dependencies unavailable.
+
+  # ---------------------------------------------------------------------------
+  # Drift Monitoring Alerts
+  # ---------------------------------------------------------------------------
+  - name: neuralretail.drift
+    rules:
+
+    - alert: NeuralRetailFeatureDrift
+      expr: neuralretail_feature_drift_share > 0.20
+      for: 0m
+      labels:
+        severity: warning
+        team: ml-platform
+      annotations:
+        summary: "Feature drift exceeds 20% threshold"
+        description: >
+          Drift share is {{ printf "%.1f%%" (mul $value 100) }}.
+          Retraining webhook should have fired.
+          Check Airflow DAG: model_retraining_pipeline.
+
+    - alert: NeuralRetailCriticalDrift
+      expr: neuralretail_feature_drift_share > 0.40
+      for: 0m
+      labels:
+        severity: critical
+        team: ml-platform
+      annotations:
+        summary: "Critical feature drift > 40% — model predictions unreliable"
+        description: >
+          Drift share {{ printf "%.1f%%" (mul $value 100) }} is critically high.
+          Rollback to previous champion or suspend predictions.
+
+  # ---------------------------------------------------------------------------
+  # Infrastructure Health
+  # ---------------------------------------------------------------------------
+  - name: neuralretail.infrastructure
+    rules:
+
+    - alert: NeuralRetailPodNotReady
+      expr: |
+        kube_pod_status_ready{
+          namespace="neuralretail", condition="false"
+        } == 1
+      for: 5m
+      labels:
+        severity: critical
+        team: platform
+      annotations:
+        summary: "NeuralRetail pod not ready for 5 minutes"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is not ready."
+
+    - alert: NeuralRetailHighActiveRequests
+      expr: neuralretail_active_requests > 100
+      for: 2m
+      labels:
+        severity: warning
+        team: ml-platform
+      annotations:
+        summary: "More than 100 concurrent inference requests"
+        description: >
+          {{ $value }} concurrent requests. Consider scaling up replicas or
+          adding request queuing.

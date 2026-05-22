@@ -1,0 +1,21 @@
+artifact_path: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/568996014159066033/models/m-e42768ee0ef74b12bfe97daf27b6f9e4/artifacts
+flavors:
+  prophet:
+    code: null
+    data: model.pr
+    model_type: Prophet
+    prophet_version: 1.3.0
+  python_function:
+    data: model.pr
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.prophet
+    python_version: 3.10.0
+mlflow_version: 3.12.0
+model_id: m-e42768ee0ef74b12bfe97daf27b6f9e4
+model_size_bytes: 39356
+model_uuid: m-e42768ee0ef74b12bfe97daf27b6f9e4
+prompts: null
+run_id: eed0856413384beda88650507b2864ed
+utc_time_created: '2026-05-20 14:15:08.920370'

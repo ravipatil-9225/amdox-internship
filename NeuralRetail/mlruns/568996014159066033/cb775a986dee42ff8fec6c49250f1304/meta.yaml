@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/568996014159066033/cb775a986dee42ff8fec6c49250f1304/artifacts
+end_time: 1779290374715
+entry_point_name: ''
+experiment_id: '568996014159066033'
+lifecycle_stage: active
+run_id: cb775a986dee42ff8fec6c49250f1304
+run_name: abrasive-stoat-893
+run_uuid: cb775a986dee42ff8fec6c49250f1304
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779290360838
+status: 3
+tags: []
+user_id: ravip

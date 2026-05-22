@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/347230656019795632/c6d7960259ab42bf831b0fcf3c9b9a83/artifacts
+end_time: 1779291930722
+entry_point_name: ''
+experiment_id: '347230656019795632'
+lifecycle_stage: active
+run_id: c6d7960259ab42bf831b0fcf3c9b9a83
+run_name: melodic-goat-649
+run_uuid: c6d7960259ab42bf831b0fcf3c9b9a83
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779291926484
+status: 3
+tags: []
+user_id: ravip

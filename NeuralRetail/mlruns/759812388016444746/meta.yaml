@@ -1,0 +1,8 @@
+artifact_location: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/759812388016444746
+creation_time: 1779287259886
+experiment_id: '759812388016444746'
+last_update_time: 1779287259886
+lifecycle_stage: active
+name: optuna_lstm_demand
+trace_location: null
+workspace: default

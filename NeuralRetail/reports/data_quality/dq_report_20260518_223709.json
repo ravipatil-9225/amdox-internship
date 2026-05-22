@@ -1,0 +1,27 @@
+{
+  "timestamp": "20260518_223709",
+  "dq_score": 95.83333333333334,
+  "gate_passed": false,
+  "details": {
+    "customers": {
+      "passed": false,
+      "total": 6,
+      "success": 5
+    },
+    "products": {
+      "passed": true,
+      "total": 6,
+      "success": 6
+    },
+    "transactions": {
+      "passed": true,
+      "total": 8,
+      "success": 8
+    },
+    "inventory": {
+      "passed": true,
+      "total": 4,
+      "success": 4
+    }
+  }
+}

@@ -1,0 +1,789 @@
+{
+  "metrics": [
+    {
+      "metric": "DatasetDriftMetric",
+      "result": {
+        "drift_share": 0.5,
+        "number_of_columns": 5,
+        "number_of_drifted_columns": 2,
+        "share_of_drifted_columns": 0.4,
+        "dataset_drift": false
+      }
+    },
+    {
+      "metric": "DataDriftTable",
+      "result": {
+        "number_of_columns": 5,
+        "number_of_drifted_columns": 2,
+        "share_of_drifted_columns": 0.4,
+        "dataset_drift": false,
+        "drift_by_columns": {
+          "age": {
+            "column_name": "age",
+            "column_type": "num",
+            "stattest_name": "Wasserstein distance (normed)",
+            "stattest_threshold": 0.1,
+            "drift_score": 0.12417150497246092,
+            "drift_detected": true,
+            "current": {
+              "small_distribution": {
+                "x": [
+                  17.253551054359097,
+                  23.3326182139735,
+                  29.411685373587904,
+                  35.49075253320231,
+                  41.56981969281671,
+                  47.64888685243112,
+                  53.727954012045515,
+                  59.807021171659926,
+                  65.88608833127432,
+                  71.96515549088873,
+                  78.04422265050313
+                ],
+                "y": [
+                  0.010527931065670203,
+                  0.017436885827516273,
+                  0.017338186473775604,
+                  0.0171078879817141,
+                  0.016844689705072302,
+                  0.01822648065744156,
+                  0.01793038259621954,
+                  0.0181277813037009,
+                  0.017338186473775594,
+                  0.01362051081621084
+                ]
+              }
+            },
+            "reference": {
+              "small_distribution": {
+                "x": [
+                  18.0,
+                  23.6,
+                  29.2,
+                  34.8,
+                  40.4,
+                  46.0,
+                  51.599999999999994,
+                  57.199999999999996,
+                  62.8,
+                  68.4,
+                  74.0
+                ],
+                "y": [
+                  0.01821428571428571,
+                  0.01878571428571429,
+                  0.015321428571428578,
+                  0.01796428571428571,
+                  0.016321428571428567,
+                  0.018714285714285735,
+                  0.019214285714285708,
+                  0.016214285714285712,
+                  0.018642857142857114,
+                  0.019178571428571448
+                ]
+              }
+            }
+          },
+          "churn": {
+            "column_name": "churn",
+            "column_type": "num",
+            "stattest_name": "Jensen-Shannon distance",
+            "stattest_threshold": 0.1,
+            "drift_score": 0.0,
+            "drift_detected": false,
+            "current": {
+              "small_distribution": {
+                "x": [
+                  0.0,
+                  0.1,
+                  0.2,
+                  0.30000000000000004,
+                  0.4,
+                  0.5,
+                  0.6000000000000001,
+                  0.7000000000000001,
+                  0.8,
+                  0.9,
+                  1.0
+                ],
+                "y": [
+                  9.068,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.9320000000000002
+                ]
+              }
+            },
+            "reference": {
+              "small_distribution": {
+                "x": [
+                  0.0,
+                  0.1,
+                  0.2,
+                  0.30000000000000004,
+                  0.4,
+                  0.5,
+                  0.6000000000000001,
+                  0.7000000000000001,
+                  0.8,
+                  0.9,
+                  1.0
+                ],
+                "y": [
+                  9.068,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.9320000000000002
+                ]
+              }
+            }
+          },
+          "frequency": {
+            "column_name": "frequency",
+            "column_type": "num",
+            "stattest_name": "Wasserstein distance (normed)",
+            "stattest_threshold": 0.1,
+            "drift_score": 0.0,
+            "drift_detected": false,
+            "current": {
+              "small_distribution": {
+                "x": [
+                  1.0,
+                  3.4,
+                  5.8,
+                  8.2,
+                  10.6,
+                  13.0,
+                  15.399999999999999,
+                  17.8,
+                  20.2,
+                  22.599999999999998,
+                  25.0
+                ],
+                "y": [
+                  0.0041666666666666675,
+                  0.0255,
+                  0.10925000000000003,
+                  0.10258333333333333,
+                  0.08875,
+                  0.0644166666666667,
+                  0.01508333333333332,
+                  0.006250000000000004,
+                  0.0005000000000000002,
+                  0.00016666666666666653
+                ]
+              }
+            },
+            "reference": {
+              "small_distribution": {
+                "x": [
+                  1.0,
+                  3.4,
+                  5.8,
+                  8.2,
+                  10.6,
+                  13.0,
+                  15.399999999999999,
+                  17.8,
+                  20.2,
+                  22.599999999999998,
+                  25.0
+                ],
+                "y": [
+                  0.0041666666666666675,
+                  0.0255,
+                  0.10925000000000003,
+                  0.10258333333333333,
+                  0.08875,
+                  0.0644166666666667,
+                  0.01508333333333332,
+                  0.006250000000000004,
+                  0.0005000000000000002,
+                  0.00016666666666666653
+                ]
+              }
+            }
+          },
+          "monetary": {
+            "column_name": "monetary",
+            "column_type": "num",
+            "stattest_name": "Wasserstein distance (normed)",
+            "stattest_threshold": 0.1,
+            "drift_score": 0.1281163029224346,
+            "drift_detected": true,
+            "current": {
+              "small_distribution": {
+                "x": [
+                  112.1829168282631,
+                  2404.1911007888616,
+                  4696.19928474946,
+                  6988.2074687100585,
+                  9280.215652670659,
+                  11572.223836631258,
+                  13864.232020591855,
+                  16156.240204552454,
+                  18448.248388513053,
+                  20740.256572473652,
+                  23032.26475643425
+                ],
+                "y": [
+                  1.0907465416113788e-05,
+                  5.92493521403301e-05,
+                  0.00011073258890438719,
+                  0.00011509557507083264,
+                  8.106428297255765e-05,
+                  3.804523937140491e-05,
+                  1.4485114072599109e-05,
+                  4.973804229747887e-06,
+                  1.221636126604744e-06,
+                  5.235583399734617e-07
+                ]
+              }
+            },
+            "reference": {
+              "small_distribution": {
+                "x": [
+                  98.54,
+                  2300.3940000000002,
+                  4502.2480000000005,
+                  6704.102000000001,
+                  8905.956000000002,
+                  11107.810000000001,
+                  13309.664000000002,
+                  15511.518000000004,
+                  17713.372000000003,
+                  19915.226000000002,
+                  22117.08
+                ],
+                "y": [
+                  1.1626565612433883e-05,
+                  6.0040311482959354e-05,
+                  0.00011744647919435165,
+                  0.00012253310164979142,
+                  8.511009358476996e-05,
+                  3.9512156573505765e-05,
+                  1.2625723594752417e-05,
+                  3.996631929274149e-06,
+                  8.174928946242578e-07,
+                  4.541627192356987e-07
+                ]
+              }
+            }
+          },
+          "recency": {
+            "column_name": "recency",
+            "column_type": "num",
+            "stattest_name": "Wasserstein distance (normed)",
+            "stattest_threshold": 0.1,
+            "drift_score": 0.011230527591416264,
+            "drift_detected": false,
+            "current": {
+              "small_distribution": {
+                "x": [
+                  0.0,
+                  41.5005800013218,
+                  83.0011600026436,
+                  124.50174000396541,
+                  166.0023200052872,
+                  207.502900006609,
+                  249.00348000793082,
+                  290.5040600092526,
+                  332.0046400105744,
+                  373.5052200118962,
+                  415.005800013218
+                ],
+                "y": [
+                  0.0158503808857382,
+                  0.005464983862702073,
+                  0.001840938126589234,
+                  0.0006072204291891194,
+                  0.00022650285850705246,
+                  8.192656584297636e-05,
+                  1.4457629266407601e-05,
+                  0.0,
+                  0.0,
+                  9.638419510938401e-06
+                ]
+              }
+            },
+            "reference": {
+              "small_distribution": {
+                "x": [
+                  0.0,
+                  36.1,
+                  72.2,
+                  108.30000000000001,
+                  144.4,
+                  180.5,
+                  216.60000000000002,
+                  252.70000000000002,
+                  288.8,
+                  324.90000000000003,
+                  361.0
+                ],
+                "y": [
+                  0.016969529085872573,
+                  0.006581717451523545,
+                  0.00253185595567867,
+                  0.0010138504155124655,
+                  0.00036565096952908595,
+                  0.00013850415512465367,
+                  7.202216066481996e-05,
+                  1.10803324099723e-05,
+                  5.540166204986146e-06,
+                  1.108033240997231e-05
+                ]
+              }
+            }
+          }
+        },
+        "current_fi": null,
+        "reference_fi": null
+      }
+    },
+    {
+      "metric": "DatasetSummaryMetric",
+      "result": {
+        "almost_duplicated_threshold": 0.95,
+        "current": {
+          "target": null,
+          "prediction": null,
+          "date_column": null,
+          "id_column": null,
+          "number_of_columns": 5,
+          "number_of_rows": 5000,
+          "number_of_missing_values": 0,
+          "number_of_categorical_columns": 0,
+          "number_of_numeric_columns": 5,
+          "number_of_text_columns": 0,
+          "number_of_datetime_columns": 0,
+          "number_of_constant_columns": 0,
+          "number_of_almost_constant_columns": 0,
+          "number_of_duplicated_columns": 0,
+          "number_of_almost_duplicated_columns": 0,
+          "number_of_empty_rows": 0,
+          "number_of_empty_columns": 0,
+          "number_of_duplicated_rows": 0,
+          "nans_by_columns": {
+            "age": 0,
+            "recency": 0,
+            "frequency": 0,
+            "monetary": 0,
+            "churn": 0
+          },
+          "number_uniques_by_columns": {
+            "age": 5000,
+            "recency": 4872,
+            "frequency": 24,
+            "monetary": 5000,
+            "churn": 2
+          }
+        },
+        "reference": {
+          "target": null,
+          "prediction": null,
+          "date_column": null,
+          "id_column": null,
+          "number_of_columns": 5,
+          "number_of_rows": 5000,
+          "number_of_missing_values": 0,
+          "number_of_categorical_columns": 0,
+          "number_of_numeric_columns": 5,
+          "number_of_text_columns": 0,
+          "number_of_datetime_columns": 0,
+          "number_of_constant_columns": 0,
+          "number_of_almost_constant_columns": 0,
+          "number_of_duplicated_columns": 0,
+          "number_of_almost_duplicated_columns": 0,
+          "number_of_empty_rows": 0,
+          "number_of_empty_columns": 0,
+          "number_of_duplicated_rows": 0,
+          "nans_by_columns": {
+            "age": 0,
+            "recency": 0,
+            "frequency": 0,
+            "monetary": 0,
+            "churn": 0
+          },
+          "number_uniques_by_columns": {
+            "age": 57,
+            "recency": 207,
+            "frequency": 24,
+            "monetary": 4986,
+            "churn": 2
+          }
+        }
+      }
+    },
+    {
+      "metric": "ColumnSummaryMetric",
+      "result": {
+        "column_name": "monetary",
+        "column_type": "num",
+        "reference_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "mean": 7574.65,
+          "std": 3059.71,
+          "min": 98.54,
+          "p25": 5370.88,
+          "p50": 7337.54,
+          "p75": 9541.86,
+          "max": 22117.08,
+          "unique": 4986,
+          "unique_percentage": 99.72,
+          "infinite_count": 0,
+          "infinite_percentage": 0.0,
+          "most_common": 7898.92,
+          "most_common_percentage": 0.04
+        },
+        "current_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "mean": 7966.57,
+          "std": 3290.65,
+          "min": 112.18,
+          "p25": 5541.26,
+          "p50": 7684.58,
+          "p75": 10033.59,
+          "max": 23032.26,
+          "unique": 5000,
+          "unique_percentage": 100.0,
+          "infinite_count": 0,
+          "infinite_percentage": 0.0,
+          "most_common": 4390.87814,
+          "most_common_percentage": 0.02
+        }
+      }
+    },
+    {
+      "metric": "ColumnSummaryMetric",
+      "result": {
+        "column_name": "recency",
+        "column_type": "num",
+        "reference_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "mean": 37.68,
+          "std": 38.2,
+          "min": 0.0,
+          "p25": 10.0,
+          "p50": 25.0,
+          "p75": 53.0,
+          "max": 361.0,
+          "unique": 207,
+          "unique_percentage": 4.14,
+          "infinite_count": 0,
+          "infinite_percentage": 0.0,
+          "most_common": 1.0,
+          "most_common_percentage": 2.76
+        },
+        "current_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "mean": 37.78,
+          "std": 38.66,
+          "min": 0.0,
+          "p25": 10.16,
+          "p50": 25.16,
+          "p75": 52.86,
+          "max": 415.01,
+          "unique": 4872,
+          "unique_percentage": 97.44,
+          "infinite_count": 0,
+          "infinite_percentage": 0.0,
+          "most_common": 0.0,
+          "most_common_percentage": 2.58
+        }
+      }
+    },
+    {
+      "metric": "ColumnSummaryMetric",
+      "result": {
+        "column_name": "age",
+        "column_type": "num",
+        "reference_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "mean": 46.26,
+          "std": 16.41,
+          "min": 18.0,
+          "p25": 32.0,
+          "p50": 46.0,
+          "p75": 61.0,
+          "max": 74.0,
+          "unique": 57,
+          "unique_percentage": 1.14,
+          "infinite_count": 0,
+          "infinite_percentage": 0.0,
+          "most_common": 45.0,
+          "most_common_percentage": 2.12
+        },
+        "current_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "mean": 48.29,
+          "std": 16.46,
+          "min": 17.25,
+          "p25": 33.85,
+          "p50": 48.53,
+          "p75": 62.38,
+          "max": 78.04,
+          "unique": 5000,
+          "unique_percentage": 100.0,
+          "infinite_count": 0,
+          "infinite_percentage": 0.0,
+          "most_common": 72.85764,
+          "most_common_percentage": 0.02
+        }
+      }
+    },
+    {
+      "metric": "ColumnSummaryMetric",
+      "result": {
+        "column_name": "frequency",
+        "column_type": "num",
+        "reference_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "mean": 10.0,
+          "std": 3.23,
+          "min": 1.0,
+          "p25": 8.0,
+          "p50": 10.0,
+          "p75": 12.0,
+          "max": 25.0,
+          "unique": 24,
+          "unique_percentage": 0.48,
+          "infinite_count": 0,
+          "infinite_percentage": 0.0,
+          "most_common": 9.0,
+          "most_common_percentage": 12.54
+        },
+        "current_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "mean": 10.0,
+          "std": 3.23,
+          "min": 1.0,
+          "p25": 8.0,
+          "p50": 10.0,
+          "p75": 12.0,
+          "max": 25.0,
+          "unique": 24,
+          "unique_percentage": 0.48,
+          "infinite_count": 0,
+          "infinite_percentage": 0.0,
+          "most_common": 9.0,
+          "most_common_percentage": 12.54
+        }
+      }
+    },
+    {
+      "metric": "ColumnSummaryMetric",
+      "result": {
+        "column_name": "churn",
+        "column_type": "cat",
+        "reference_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "unique": 2,
+          "unique_percentage": 0.04,
+          "most_common": "0",
+          "most_common_percentage": 90.68,
+          "new_in_current_values_count": null,
+          "unused_in_current_values_count": null
+        },
+        "current_characteristics": {
+          "number_of_rows": 5000,
+          "count": 5000,
+          "missing": 0,
+          "missing_percentage": 0.0,
+          "unique": 2,
+          "unique_percentage": 0.04,
+          "most_common": "0",
+          "most_common_percentage": 90.68,
+          "new_in_current_values_count": 0,
+          "unused_in_current_values_count": 0
+        }
+      }
+    },
+    {
+      "metric": "DatasetMissingValuesMetric",
+      "result": {
+        "current": {
+          "different_missing_values": {
+            "": 0,
+            "-Infinity": 0,
+            "Infinity": 0,
+            "null": 0
+          },
+          "number_of_different_missing_values": 0,
+          "different_missing_values_by_column": {
+            "age": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            },
+            "recency": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            },
+            "frequency": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            },
+            "monetary": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            },
+            "churn": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            }
+          },
+          "number_of_different_missing_values_by_column": {
+            "age": 0,
+            "recency": 0,
+            "frequency": 0,
+            "monetary": 0,
+            "churn": 0
+          },
+          "number_of_missing_values": 0,
+          "share_of_missing_values": 0.0,
+          "number_of_missing_values_by_column": {
+            "age": 0,
+            "recency": 0,
+            "frequency": 0,
+            "monetary": 0,
+            "churn": 0
+          },
+          "share_of_missing_values_by_column": {
+            "age": 0.0,
+            "recency": 0.0,
+            "frequency": 0.0,
+            "monetary": 0.0,
+            "churn": 0.0
+          },
+          "number_of_rows": 5000,
+          "number_of_rows_with_missing_values": 0,
+          "share_of_rows_with_missing_values": 0.0,
+          "number_of_columns": 5,
+          "columns_with_missing_values": [],
+          "number_of_columns_with_missing_values": 0,
+          "share_of_columns_with_missing_values": 0.0
+        },
+        "reference": {
+          "different_missing_values": {
+            "": 0,
+            "-Infinity": 0,
+            "Infinity": 0,
+            "null": 0
+          },
+          "number_of_different_missing_values": 0,
+          "different_missing_values_by_column": {
+            "age": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            },
+            "recency": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            },
+            "frequency": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            },
+            "monetary": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            },
+            "churn": {
+              "": 0,
+              "-Infinity": 0,
+              "Infinity": 0,
+              "null": 0
+            }
+          },
+          "number_of_different_missing_values_by_column": {
+            "age": 0,
+            "recency": 0,
+            "frequency": 0,
+            "monetary": 0,
+            "churn": 0
+          },
+          "number_of_missing_values": 0,
+          "share_of_missing_values": 0.0,
+          "number_of_missing_values_by_column": {
+            "age": 0,
+            "recency": 0,
+            "frequency": 0,
+            "monetary": 0,
+            "churn": 0
+          },
+          "share_of_missing_values_by_column": {
+            "age": 0.0,
+            "recency": 0.0,
+            "frequency": 0.0,
+            "monetary": 0.0,
+            "churn": 0.0
+          },
+          "number_of_rows": 5000,
+          "number_of_rows_with_missing_values": 0,
+          "share_of_rows_with_missing_values": 0.0,
+          "number_of_columns": 5,
+          "columns_with_missing_values": [],
+          "number_of_columns_with_missing_values": 0,
+          "share_of_columns_with_missing_values": 0.0
+        }
+      }
+    }
+  ]
+}

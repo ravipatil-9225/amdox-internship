@@ -1,0 +1,39 @@
+{
+  "_producer": "neuralretail-lineage/2.0",
+  "_schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-20T14:37:22.323732+00:00",
+  "run": {
+    "runId": "e7476cb4-fb33-4bd7-ac66-322914cd4496",
+    "facets": {
+      "dag_run_id": "manual__2026-05-20T00:00:00",
+      "airflow_task": "unknown"
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "demand_forecast_pipeline.unknown",
+    "facets": {
+      "processing_engine": {
+        "_producer": "neuralretail-lineage/2.0",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-2-2/ProcessingEngineRunFacet.json",
+        "version": "3.11",
+        "name": "airflow"
+      }
+    }
+  },
+  "inputs": [],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "silver/daily_sku_features.parquet",
+      "facets": {
+        "dataQualityMetrics": {
+          "_producer": "neuralretail-lineage/2.0",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-0-2/DataQualityMetricsInputDatasetFacet.json",
+          "rowCount": 365
+        }
+      }
+    }
+  ]
+}

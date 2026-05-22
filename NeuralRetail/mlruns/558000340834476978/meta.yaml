@@ -1,0 +1,6 @@
+artifact_location: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/558000340834476978
+creation_time: 1779125020079
+experiment_id: '558000340834476978'
+last_update_time: 1779125020079
+lifecycle_stage: active
+name: churn_stacked_ensemble

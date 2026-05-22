@@ -1,0 +1,110 @@
+# =============================================================================
+# NeuralRetail -- Shadow (Challenger) Deployment
+# Phase 3: Shadow deployment pattern
+#
+# The shadow pod receives MIRRORED traffic — requests are replayed against
+# the challenger model but its responses are DISCARDED (not returned to users).
+# This lets us measure real-world performance without any risk.
+#
+# Activate shadow traffic via the Istio VirtualService (virtual-service.yaml).
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neuralretail-shadow
+  namespace: neuralretail
+  labels:
+    app: neuralretail
+    version: shadow
+    track: canary
+    phase: "3"
+spec:
+  replicas: 1          # Single replica — shadow traffic only, no SLA requirement
+  selector:
+    matchLabels:
+      app: neuralretail
+      version: shadow
+  template:
+    metadata:
+      labels:
+        app: neuralretail
+        version: shadow
+        track: canary
+      annotations:
+        # Prometheus scraping — shadow metrics go to a separate dashboard
+        prometheus.io/scrape: "true"
+        prometheus.io/port:   "8000"
+        prometheus.io/path:   "/metrics"
+        sidecar.istio.io/inject: "true"
+        # Shadow-specific annotation for Grafana dashboard filtering
+        neuralretail/shadow: "true"
+    spec:
+      containers:
+      - name: neuralretail-api-shadow
+        image: neuralretail/fastapi:challenger-latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+        env:
+        - name: MODEL_VERSION
+          value: "shadow"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: database_url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets
+              key: redis_url
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            configMapKeyRef:
+              name: neuralretail-config
+              key: mlflow_tracking_uri
+        # Shadow pod uses the challenger model artifact
+        - name: MODEL_PATH
+          value: "/app/models/xgb_churn_challenger.pkl"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        volumeMounts:
+        - name: model-store
+          mountPath: /app/models
+          readOnly: true
+      volumes:
+      - name: model-store
+        persistentVolumeClaim:
+          claimName: model-store-pvc
+---
+# Shadow Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: neuralretail-shadow-svc
+  namespace: neuralretail
+  labels:
+    app: neuralretail
+    version: shadow
+spec:
+  type: ClusterIP
+  selector:
+    app: neuralretail
+    version: shadow
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8000

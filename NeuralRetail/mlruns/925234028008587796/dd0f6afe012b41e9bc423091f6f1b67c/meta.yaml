@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/925234028008587796/dd0f6afe012b41e9bc423091f6f1b67c/artifacts
+end_time: 1779289521193
+entry_point_name: ''
+experiment_id: '925234028008587796'
+lifecycle_stage: active
+run_id: dd0f6afe012b41e9bc423091f6f1b67c
+run_name: champion_challenger_eval
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779289521140
+status: 3
+tags: []
+user_id: ravip

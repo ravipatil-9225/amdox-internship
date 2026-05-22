@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/347230656019795632/02e7d82814c94f17a2b6433752025f1e/artifacts
+end_time: 1779287189120
+entry_point_name: ''
+experiment_id: '347230656019795632'
+lifecycle_stage: active
+run_id: 02e7d82814c94f17a2b6433752025f1e
+run_name: masked-wolf-803
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779287185040
+status: 3
+tags: []
+user_id: ravip

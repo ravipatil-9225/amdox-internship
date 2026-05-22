@@ -1,0 +1,33 @@
+{
+  "_producer": "neuralretail-lineage-tracker/1.0",
+  "_schemaURL": "https://openlineage.io/spec/1-0-5/OpenLineage.json",
+  "eventType": "COMPLETE",
+  "eventTime": "2026-05-19T14:41:07.223802+00:00",
+  "run": {
+    "runId": "f96414a1-5ff4-4c32-96fd-43aa02e472ba",
+    "facets": {
+      "step": "training",
+      "model": "xgb_churn",
+      "metrics": {
+        "auc": 0.95,
+        "f1": 0.91
+      }
+    }
+  },
+  "job": {
+    "namespace": "neuralretail",
+    "name": "train_xgb_churn"
+  },
+  "inputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "silver/customer_features.parquet"
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "neuralretail",
+      "name": "models/xgb_churn"
+    }
+  ]
+}

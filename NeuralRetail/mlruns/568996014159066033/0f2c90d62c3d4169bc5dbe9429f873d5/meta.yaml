@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/568996014159066033/0f2c90d62c3d4169bc5dbe9429f873d5/artifacts
+end_time: 1779122220115
+entry_point_name: ''
+experiment_id: '568996014159066033'
+lifecycle_stage: active
+run_id: 0f2c90d62c3d4169bc5dbe9429f873d5
+run_name: loud-turtle-137
+run_uuid: 0f2c90d62c3d4169bc5dbe9429f873d5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779122208477
+status: 3
+tags: []
+user_id: ravip

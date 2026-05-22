@@ -1,0 +1,35 @@
+{
+  "timestamp": "20260520_152130",
+  "drift_share": 0.4,
+  "drifted_columns": 2,
+  "total_columns": 5,
+  "column_drift": {
+    "age": {
+      "detected": true,
+      "score": 0.14259103832161188,
+      "stattest": "Wasserstein distance (normed)"
+    },
+    "churn": {
+      "detected": false,
+      "score": 0.0007635127302087422,
+      "stattest": "Jensen-Shannon distance"
+    },
+    "frequency": {
+      "detected": false,
+      "score": 0.011047450586720573,
+      "stattest": "Wasserstein distance (normed)"
+    },
+    "monetary": {
+      "detected": true,
+      "score": 0.13665316445692982,
+      "stattest": "Wasserstein distance (normed)"
+    },
+    "recency": {
+      "detected": false,
+      "score": 0.022272350327191333,
+      "stattest": "Wasserstein distance (normed)"
+    }
+  },
+  "threshold": 0.2,
+  "retraining_required": true
+}

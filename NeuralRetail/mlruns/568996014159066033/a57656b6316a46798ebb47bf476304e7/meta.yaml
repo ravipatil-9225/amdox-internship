@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/AMDOX INTERNSHIP/NeuralRetail/mlruns/568996014159066033/a57656b6316a46798ebb47bf476304e7/artifacts
+end_time: 1779287024823
+entry_point_name: ''
+experiment_id: '568996014159066033'
+lifecycle_stage: active
+run_id: a57656b6316a46798ebb47bf476304e7
+run_name: popular-rook-172
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779286989307
+status: 3
+tags: []
+user_id: ravip
