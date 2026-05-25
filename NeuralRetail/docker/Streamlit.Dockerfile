@@ -5,12 +5,9 @@
 FROM python:3.10-slim AS builder
 
 WORKDIR /build
-COPY pyproject.toml poetry.lock ./
+COPY requirements/requirements.txt ./requirements.txt
 
-RUN pip install --no-cache-dir poetry \
-    && poetry config virtualenvs.create false \
-    && poetry export -f requirements.txt --output requirements.txt --without-hashes \
-    && pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # Stage 2: Production image
 FROM python:3.10-slim AS production
