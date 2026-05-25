@@ -2,7 +2,7 @@
 # Security: non-root user, slim base, minimal attack surface
 
 # Stage 1: Build dependencies
-FROM python:3.10-slim AS builder
+FROM python:3.10 AS builder
 
 WORKDIR /build
 COPY requirements/requirements.txt ./requirements.txt
