@@ -154,7 +154,12 @@ def _compute_rfm_features() -> pd.DataFrame:
     rfm["churn_risk"] = (rfm["recency"] > 90).astype(float)
     rfm["clv_score"]  = (rfm["monetary"] * rfm["frequency"] / 1000).round(4)
 
-    data = customers.merge(rfm, on="customer_id", how="left").fillna(0)
+    data = customers.merge(rfm, on="customer_id", how="left")
+    for col in data.columns:
+        if data[col].dtype == object or data[col].dtype == 'string':
+            data[col] = data[col].fillna("").astype(str)
+        else:
+            data[col] = data[col].fillna(0)
     data["event_timestamp"] = pd.Timestamp(datetime.now(timezone.utc))
     data["created_timestamp"] = data["event_timestamp"]
     return data

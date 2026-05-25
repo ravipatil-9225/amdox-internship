@@ -114,7 +114,11 @@ def train_churn_xgboost():
 
     predictor = ChurnPredictor()
     predictor.train(X, y)
-    print("  XGBoost churn model trained and logged to MLflow!")
+    import pickle
+    os.makedirs("models", exist_ok=True)
+    with open("models/xgb_churn.pkl", "wb") as f:
+        pickle.dump(predictor.model, f)
+    print("  XGBoost churn model trained, saved to models/xgb_churn.pkl and logged to MLflow!")
 
 
 def train_churn_stacked():
@@ -142,7 +146,10 @@ def train_churn_stacked():
 
         predictor = StackedChurnPredictor()
         auc, f1 = predictor.train(X, y)
-        print(f"  Stacked ensemble trained! AUC={auc:.4f}, F1={f1:.4f}")
+        import pickle
+        with open("models/stacked_churn.pkl", "wb") as f:
+            pickle.dump(predictor, f)
+        print(f"  Stacked ensemble trained and saved to models/stacked_churn.pkl! AUC={auc:.4f}, F1={f1:.4f}")
     except Exception as e:
         print(f"  Stacked training skipped: {e}")
 

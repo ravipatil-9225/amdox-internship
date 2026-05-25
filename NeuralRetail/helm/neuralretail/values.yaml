@@ -1,0 +1,123 @@
+# NeuralRetail Helm Chart - Default Values
+# ==========================================
+
+replicaCount: 2
+
+image:
+  repository: neuralretail/fastapi
+  tag: "champion-latest"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: "neuralretail-sa"
+  annotations:
+    eks.amazonaws.com/role-arn: ""
+
+# -- FastAPI Configuration --
+fastapi:
+  port: 8000
+  replicas: 2
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+  env:
+    PYTHONPATH: "."
+    MLFLOW_TRACKING_URI: "http://mlflow:5000"
+    REDIS_URL: "redis://redis:6379/0"
+    DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/neuralretail"
+    DRIFT_THRESHOLD: "0.20"
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 15
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+
+# -- Streamlit Dashboard --
+streamlit:
+  enabled: true
+  port: 8501
+  replicas: 1
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+
+# -- Service --
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+# -- Ingress (HTTPS) --
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: neuralretail.amdox.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: neuralretail-tls
+      hosts:
+        - neuralretail.amdox.io
+
+# -- Autoscaling (HPA) --
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# -- PostgreSQL --
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "postgres"
+    database: "neuralretail"
+  primary:
+    persistence:
+      size: 20Gi
+
+# -- Redis --
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+
+# -- MLflow --
+mlflow:
+  enabled: true
+  trackingUri: "http://mlflow:5000"
+  artifactRoot: "s3://neuralretail-mlflow-artifacts"
+
+# -- Monitoring --
+monitoring:
+  prometheus:
+    enabled: true
+    scrapeInterval: "15s"
+  grafana:
+    enabled: true

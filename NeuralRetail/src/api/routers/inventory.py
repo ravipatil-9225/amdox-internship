@@ -85,7 +85,7 @@ async def inventory_reorder(request: InventoryRequest, current_user = Depends(ge
         # Dead stock: no sales in last 90 days
         if not sku_txns.empty:
             last_sale = sku_txns['timestamp'].max()
-            days_since = (pd.Timestamp.now() - last_sale).days
+            days_since = (pd.Timestamp.now(tz='UTC') - last_sale).days
             dead_stock = days_since > 90
         else:
             dead_stock = True

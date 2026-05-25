@@ -1,0 +1,38 @@
+# NeuralRetail Prometheus Scrape Configuration
+# ==============================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules/*.yaml
+
+scrape_configs:
+  # FastAPI application metrics
+  - job_name: 'neuralretail-fastapi'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['fastapi:8000']
+        labels:
+          service: 'fastapi'
+          environment: 'production'
+
+  # Airflow StatsD metrics (via statsd_exporter)
+  - job_name: 'neuralretail-airflow'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['airflow-webserver:9102']
+        labels:
+          service: 'airflow'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node exporter (if deployed)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']

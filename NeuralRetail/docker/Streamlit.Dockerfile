@@ -1,20 +1,45 @@
-FROM python:3.12-slim
+# Multi-stage build for NeuralRetail Streamlit Dashboard
+# Security: non-root user, slim base, minimal attack surface
+
+# Stage 1: Build dependencies
+FROM python:3.10-slim AS builder
+
+WORKDIR /build
+COPY pyproject.toml poetry.lock ./
+
+RUN pip install --no-cache-dir poetry \
+    && poetry config virtualenvs.create false \
+    && poetry export -f requirements.txt --output requirements.txt --without-hashes \
+    && pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# Stage 2: Production image
+FROM python:3.10-slim AS production
+
+# Security: create non-root user
+RUN groupadd -r neuralretail && useradd -r -g neuralretail -d /app -s /bin/false neuralretail
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Copy installed packages from builder
+COPY --from=builder /install /usr/local
 
-RUN pip install poetry
+# Copy application code
+COPY src/ ./src/
+COPY data/ ./data/
 
-COPY pyproject.toml poetry.lock ./
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev
+# Set ownership
+RUN chown -R neuralretail:neuralretail /app
 
-COPY . .
+# Security: switch to non-root user
+USER neuralretail
+
+ENV PYTHONPATH=.
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8501
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')" || exit 1
 
 CMD ["streamlit", "run", "src/dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0"]

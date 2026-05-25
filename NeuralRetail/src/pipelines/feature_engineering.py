@@ -178,8 +178,12 @@ def run_feature_engineering():
         .merge(rfm, on="customer_id", how="left")
         .merge(cat_feats, on="customer_id", how="left")
         .merge(promo_feats, on="customer_id", how="left")
-        .fillna(0)
     )
+    for col in customer_features.columns:
+        if customer_features[col].dtype == object or customer_features[col].dtype == 'string':
+            customer_features[col] = customer_features[col].fillna("").astype(str)
+        else:
+            customer_features[col] = customer_features[col].fillna(0)
 
     # Churn label: no purchase in last 90 days
     customer_features["churn"] = (customer_features["recency"] > 90).astype(int)

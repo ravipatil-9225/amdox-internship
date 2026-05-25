@@ -27,6 +27,8 @@
 
 All served through an **interactive 5-page Streamlit dashboard** and **secured REST API**.
 
+🔗 **[Live Demo](https://neuralretail.streamlit.app)** | 🎥 **[Demo Video (5 min)](https://youtu.be/YOUR_VIDEO_ID)** | 📄 **[Model Cards](docs/model_cards.md)**
+
 | Metric | Target | Achieved |
 |--------|--------|----------|
 | Forecast MAPE (30-day) | ≤ 10% | ✅ Within threshold |
@@ -137,9 +139,10 @@ python -m poetry run streamlit run src/dashboard/app.py
 |------|-------------|
 | **Executive Hub** | KPI overview, system health, platform metrics |
 | **Demand Intelligence** | SKU-level Prophet forecasts with confidence intervals |
-| **Customer Intelligence** | Churn risk (SHAP waterfall) + K-Means segmentation (radar/donut) |
+| **Customer Intelligence** | Churn risk (SHAP waterfall) + K-Means/DBSCAN/GMM segmentation |
 | **Inventory Health** | EOQ reorder, ABC classification, stockout risk assessment |
 | **MLOps Monitor** | MLflow experiments, model metrics, pipeline health |
+| **Revenue Analytics** | Price elasticity (DoWhy), what-if simulator, cross-price heatmap |
 
 ---
 
@@ -150,9 +153,13 @@ python -m poetry run streamlit run src/dashboard/app.py
 | POST | `/api/v1/login/access-token` | Get JWT token | No |
 | POST | `/api/v1/predict/demand` | Demand forecast (Prophet) | JWT |
 | POST | `/api/v1/predict/churn` | Churn prediction + SHAP | JWT |
-| POST | `/api/v1/segment/score` | K-Means RFM segmentation | JWT |
+| POST | `/api/v1/segment/score` | K-Means + DBSCAN + GMM segmentation | JWT |
 | POST | `/api/v1/inventory/reorder` | EOQ inventory optimization | JWT |
+| POST | `/api/v1/revenue/elasticity` | Causal price elasticity (DoWhy) | JWT |
+| POST | `/api/v1/revenue/cross-elasticity` | Cross-price elasticity (Double ML) | JWT |
+| POST | `/api/v1/revenue/simulate` | What-if revenue simulator | JWT |
 | GET | `/health` | System health check | No |
+| GET | `/metrics` | Prometheus metrics endpoint | No |
 
 **Authentication:** `username: admin`, `password: admin`
 
@@ -180,54 +187,99 @@ python -m poetry run streamlit run src/dashboard/app.py
 
 ---
 
+## 🌐 Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `sqlite:///data/neuralretail.db` |
+| `REDIS_URL` | Redis feature cache | `redis://localhost:6379/0` |
+| `MLFLOW_TRACKING_URI` | MLflow server URI | `file:./mlruns` |
+| `DRIFT_THRESHOLD` | PSI threshold for auto-retrain | `0.20` |
+| `AIRFLOW_BASE_URL` | Airflow REST API | `http://localhost:8080` |
+| `SECRET_KEY` | JWT signing secret | `neuralretail-secret-key` |
+| `API_KEY` | API key auth | `neural_secret_key_prod_123!` |
+
+---
+
 ## 📁 Project Structure
 
 ```
 NeuralRetail/
 ├── src/
 │   ├── api/                    # FastAPI backend
-│   │   ├── main.py             # App entry point
+│   │   ├── main.py             # App entry + Prometheus middleware
 │   │   ├── security.py         # JWT authentication
 │   │   └── routers/            # API endpoints
 │   │       ├── auth.py         # Token generation
 │   │       ├── demand.py       # Prophet forecasting
 │   │       ├── churn.py        # XGBoost + SHAP
-│   │       ├── segment.py      # K-Means clustering
-│   │       └── inventory.py    # EOQ optimization
+│   │       ├── segment.py      # K-Means + DBSCAN + GMM
+│   │       ├── inventory.py    # EOQ optimization
+│   │       └── revenue.py      # DoWhy price elasticity
 │   ├── config/settings.py      # Environment configuration
 │   ├── dashboard/              # Streamlit frontend
 │   │   ├── app.py              # Executive Hub
+│   │   ├── export_utils.py     # PDF/Excel export
 │   │   └── pages/
 │   │       ├── 1_Demand_Intelligence.py
 │   │       ├── 2_Customer_Intelligence.py
 │   │       ├── 3_Inventory_Health.py
-│   │       └── 4_MLOps_Monitor.py
+│   │       ├── 4_MLOps_Monitor.py
+│   │       └── 5_Revenue_Analytics.py
 │   ├── db/models.py            # SQLAlchemy ORM schemas
 │   ├── models/                 # ML model classes
-│   │   ├── prophet_forecast.py
-│   │   └── xgb_churn.py
-│   └── monitoring/             # Evidently AI integration
+│   │   ├── prophet_forecast.py # Prophet demand forecasting
+│   │   ├── lstm_forecast.py    # PyTorch Lightning LSTM
+│   │   ├── xgb_churn.py        # XGBoost churn classifier
+│   │   ├── stacked_churn.py    # XGB+LGB stacked ensemble
+│   │   ├── tft_forecast.py     # Temporal Fusion Transformer
+│   │   ├── price_elasticity.py # DoWhy causal inference
+│   │   └── explainability.py   # SHAP + LIME + Captum
+│   ├── pipelines/              # Data engineering pipelines
+│   │   ├── data_ingestion.py   # CSV/Parquet/JDBC/Kafka
+│   │   ├── feature_engineering.py
+│   │   ├── data_lineage.py     # OpenLineage events
+│   │   ├── feast_serving.py    # Feast materialisation
+│   │   └── kafka_consumer.py   # Kafka event consumer
+│   ├── feature_store/          # Feast feature definitions
+│   └── monitoring/             # Evidently AI drift + Prometheus
 ├── scripts/
 │   ├── generate_data.py        # Synthetic data generator
 │   ├── train_models.py         # Model training pipeline
+│   ├── tune_models.py          # Optuna HPO (XGB + LGB + LSTM)
 │   ├── drift_detection.py      # Evidently AI drift reports
 │   └── data_quality_gate.py    # Great Expectations DQ
+├── airflow/dags/               # Airflow DAGs
+│   ├── demand_forecast_dag.py  # Daily ETL + forecast
+│   └── model_retraining_dag.py # Drift-triggered retrain
 ├── data/
 │   ├── bronze/                 # Raw Parquet datasets
 │   ├── silver/                 # Cleaned features
 │   ├── gold/                   # Aggregated analytics
 │   └── neuralretail.db         # SQLite database
-├── reports/
+├── reports/                    # Generated reports
 │   ├── drift/                  # Evidently HTML reports
-│   └── data_quality/           # GE validation reports
+│   ├── data_quality/           # GE validation reports
+│   └── lineage/                # OpenLineage events
+├── docs/
+│   ├── architecture.md         # Architecture + Mermaid diagrams
+│   ├── model_cards.md          # Model cards (7 models)
+│   └── personal_reflection.md  # Post-mortem reflection
 ├── mlruns/                     # MLflow experiment store
-├── tests/                      # pytest test suite
-├── devops/                     # CI/CD configs
+├── tests/
+│   ├── unit/test_api.py        # FastAPI unit tests
+│   ├── integration/            # E2E pipeline tests
+│   └── k6_load_test.js         # k6 200-VU load test
 ├── kubernetes/                 # K8s manifests
-├── terraform/                  # IaC templates
-├── docker-compose.yml          # Local dev stack
-├── Dockerfile                  # Multi-stage build
-└── pyproject.toml              # Poetry dependencies
+│   ├── base/                   # Champion + shadow deploys
+│   └── monitoring/             # Prometheus + Grafana
+├── helm/neuralretail/          # Helm chart
+├── terraform/aws/              # Terraform IaC
+├── docker/                     # Dockerfiles (multi-stage)
+├── .github/workflows/main.yml  # CI/CD pipeline
+├── docker-compose.yml          # 10-service local stack
+├── pyproject.toml              # Poetry dependencies
+└── poetry.lock                 # Locked versions
 ```
 
 ---

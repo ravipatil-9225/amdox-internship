@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "neuralretail.fullname" . }}-fastapi
+  labels:
+    app.kubernetes.io/name: {{ include "neuralretail.name" . }}
+    app.kubernetes.io/component: fastapi
+spec:
+  replicas: {{ .Values.fastapi.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "neuralretail.name" . }}
+      app.kubernetes.io/component: fastapi
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "neuralretail.name" . }}
+        app.kubernetes.io/component: fastapi
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: fastapi
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.fastapi.port }}
+              protocol: TCP
+          env:
+            {{- range $key, $value := .Values.fastapi.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.fastapi.livenessProbe.httpGet.path }}
+              port: {{ .Values.fastapi.livenessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.fastapi.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.fastapi.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.fastapi.readinessProbe.httpGet.path }}
+              port: {{ .Values.fastapi.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.fastapi.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.fastapi.readinessProbe.periodSeconds }}
+          resources:
+            {{- toYaml .Values.fastapi.resources | nindent 12 }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+---
+{{- if .Values.streamlit.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "neuralretail.fullname" . }}-streamlit
+  labels:
+    app.kubernetes.io/name: {{ include "neuralretail.name" . }}
+    app.kubernetes.io/component: streamlit
+spec:
+  replicas: {{ .Values.streamlit.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "neuralretail.name" . }}
+      app.kubernetes.io/component: streamlit
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "neuralretail.name" . }}
+        app.kubernetes.io/component: streamlit
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: streamlit
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.streamlit.port }}
+          command: ["streamlit", "run", "src/dashboard/app.py", "--server.port={{ .Values.streamlit.port }}"]
+          resources:
+            {{- toYaml .Values.streamlit.resources | nindent 12 }}
+{{- end }}

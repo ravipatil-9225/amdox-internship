@@ -10,11 +10,14 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/neuralretail
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - PYTHONPATH=.
     depends_on:
       - redis
       - postgres
     networks:
       - retail_network
+    restart: unless-stopped
 
   streamlit:
     build:
@@ -24,18 +27,22 @@ services:
       - "8501:8501"
     environment:
       - API_URL=http://fastapi:8000
+    depends_on:
+      - fastapi
     networks:
       - retail_network
+    restart: unless-stopped
 
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     ports:
       - "6379:6379"
     networks:
       - retail_network
+    restart: unless-stopped
 
   postgres:
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -46,13 +53,89 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - retail_network
+    restart: unless-stopped
 
   mlflow:
     image: bitnami/mlflow:2.13.0
     ports:
       - "5000:5000"
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=postgresql://postgres:postgres@postgres:5432/neuralretail
+    depends_on:
+      - postgres
     networks:
       - retail_network
+    restart: unless-stopped
+
+  airflow-webserver:
+    image: apache/airflow:2.9.0-python3.10
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/neuralretail
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=true
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+    depends_on:
+      - postgres
+      - redis
+    command: webserver
+    networks:
+      - retail_network
+    restart: unless-stopped
+
+  airflow-scheduler:
+    image: apache/airflow:2.9.0-python3.10
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/neuralretail
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+    depends_on:
+      - airflow-webserver
+    command: scheduler
+    networks:
+      - retail_network
+    restart: unless-stopped
+
+  marquez:
+    image: marquezproject/marquez:0.46.0
+    ports:
+      - "5500:5500"
+      - "5501:5501"
+    environment:
+      - MARQUEZ_PORT=5500
+      - MARQUEZ_ADMIN_PORT=5501
+    networks:
+      - retail_network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./kubernetes/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - retail_network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - retail_network
+    restart: unless-stopped
 
 volumes:
   pgdata:
