@@ -24,7 +24,7 @@ if not st.session_state.get("authentication_status"):
     st.error("Please log in from the main page to access this dashboard.")
     st.stop()
 
-API_URL = os.environ.get("NEURALRETAIL_API_URL", "http://127.0.0.1:8000/api/v1")
+API_URL = os.environ.get("NEURALRETAIL_API_URL", "https://neuralretail-api-python.onrender.com/api/v1")
 
 @st.cache_data(ttl=900)
 def get_auth_token():
