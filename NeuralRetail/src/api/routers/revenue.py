@@ -16,10 +16,6 @@ from sklearn.ensemble import GradientBoostingRegressor
 import warnings
 warnings.filterwarnings('ignore')
 
-# DoWhy + EconML imports
-import dowhy
-from econml.dml import LinearDML, NonParamDML
-
 router = APIRouter()
 
 
@@ -91,6 +87,9 @@ def compute_elasticity():
       1. LinearDML  (causal linear elasticity)
       2. NonParamDML (non-linear elasticity curve via GBR)
     """
+    import dowhy
+    from econml.dml import NonParamDML
+
     global _elasticity_cache
     if _elasticity_cache is not None:
         return _elasticity_cache
@@ -217,6 +216,7 @@ def compute_cross_elasticity(focal_cat: str, competitor_cat: str) -> float:
 
     # DML: treatment = comp price, outcome = focal demand, controls = own price
     try:
+        from econml.dml import LinearDML
         dml = LinearDML(discrete_treatment=False, random_state=42)
         dml.fit(
             Y=combined['log_focal_q'].values,

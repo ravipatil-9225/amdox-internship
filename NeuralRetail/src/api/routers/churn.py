@@ -3,10 +3,8 @@ from pydantic import BaseModel
 from typing import Dict, List
 from src.api.security import get_current_user
 from src.config.settings import settings
-import mlflow
 import pandas as pd
 import numpy as np
-import shap
 
 router = APIRouter()
 
@@ -28,6 +26,8 @@ def get_churn_model():
     global _model, _explainer
     if _model is None:
         try:
+            import mlflow
+            import shap
             mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
             experiment = mlflow.get_experiment_by_name("churn_prediction")
             if not experiment:

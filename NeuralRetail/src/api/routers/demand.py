@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from src.api.security import get_current_user
 from src.config.settings import settings
-import mlflow
 import pandas as pd
 from datetime import datetime, timedelta
 
@@ -27,6 +26,7 @@ def get_model():
     global _model
     if _model is None:
         try:
+            import mlflow
             mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
             experiment = mlflow.get_experiment_by_name("demand_forecasting")
             if not experiment:
