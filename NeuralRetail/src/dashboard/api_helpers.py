@@ -66,13 +66,13 @@ def _fetch_auth_token():
     try:
         resp = api_request_with_retry(
             "POST",
-            f"{API_URL}/login/access-token",
+            f"{API_URL.rstrip('/')}/login/access-token",
             data={"username": "admin", "password": "admin"},
         )
-        if resp and resp.status_code == 200:
+        if resp is not None and resp.status_code == 200:
             return resp.json().get("access_token")
-        elif resp:
-            st.error(f"Auth failed: {resp.status_code} — {resp.text[:200]}")
+        elif resp is not None:
+            st.error(f"Auth failed: {resp.status_code} — {resp.text[:200]} at {API_URL}")
     except Exception as e:
         st.error(f"Failed to connect to API: {e}")
     return None
