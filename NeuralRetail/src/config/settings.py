@@ -15,10 +15,14 @@ Usage:
 import json
 import logging
 import os
+from pathlib import Path
 from functools import lru_cache
 from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Project root: settings.py is at src/config/settings.py → go up 3 levels
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 logger = logging.getLogger("neuralretail.settings")
 
@@ -161,6 +165,21 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT.lower() == "production"
+
+    @property
+    def data_dir(self) -> Path:
+        """Absolute path to data/bronze/ — works on Render and locally."""
+        return BASE_DIR / "data" / "bronze"
+
+    @property
+    def models_dir(self) -> Path:
+        """Absolute path to models/ — works on Render and locally."""
+        return BASE_DIR / "models"
+
+    @property
+    def mlruns_dir(self) -> Path:
+        """Absolute path to mlruns/ — works on Render and locally."""
+        return BASE_DIR / "mlruns"
 
 
 @lru_cache(maxsize=1)

@@ -19,7 +19,7 @@ import os
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.config.settings import settings
+from src.config.settings import settings, BASE_DIR
 from src.api.routers import demand, churn, segment, inventory, auth, revenue
 
 # ---------------------------------------------------------------------------
@@ -89,6 +89,41 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---------------------------------------------------------------------------
+# Startup: auto-generate data if missing (self-bootstrapping for Render)
+# ---------------------------------------------------------------------------
+
+@app.on_event("startup")
+async def startup_event():
+    """Ensure bronze data and models exist on first boot (e.g., Render deploy)."""
+    data_dir = settings.data_dir
+    if not data_dir.exists() or not (data_dir / "transactions.parquet").exists():
+        print("[Startup] Bronze data missing — generating synthetic datasets...")
+        try:
+            import subprocess, sys
+            generate_script = BASE_DIR / "scripts" / "generate_data.py"
+            if generate_script.exists():
+                subprocess.run(
+                    [sys.executable, str(generate_script)],
+                    cwd=str(BASE_DIR),
+                    check=True,
+                    timeout=120,
+                )
+                print("[Startup] Synthetic data generated successfully.")
+            else:
+                print(f"[Startup] generate_data.py not found at {generate_script}")
+        except Exception as e:
+            print(f"[Startup] Data generation failed: {e}")
+    else:
+        print(f"[Startup] Bronze data found at {data_dir}")
+
+    # Check models exist
+    models_dir = settings.models_dir
+    if not (models_dir / "xgb_churn.pkl").exists():
+        print(f"[Startup] WARNING: xgb_churn.pkl not found in {models_dir}")
+    else:
+        print(f"[Startup] Models directory OK at {models_dir}")
 
 # ---------------------------------------------------------------------------
 # Prometheus middleware
@@ -179,10 +214,9 @@ async def readiness_check():
     Returns 503 if any critical dependency is unavailable.
     """
     checks: dict = {"models": "ok", "version": settings.VERSION}
-    import os
-    models_dir = "models"
+    models_dir = settings.models_dir
     required = ["xgb_churn.pkl"]
-    missing = [m for m in required if not os.path.exists(os.path.join(models_dir, m))]
+    missing = [m for m in required if not (models_dir / m).exists()]
     if missing:
         checks["models"] = f"missing: {missing}"
         return Response(

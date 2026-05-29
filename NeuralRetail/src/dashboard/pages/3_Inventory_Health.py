@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-import requests
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from export_utils import export_to_excel, export_to_pdf
+from api_helpers import API_URL, get_auth_token, get_auth_headers, api_request_with_retry
 
 st.set_page_config(page_title="Inventory Health | NeuralRetail", layout="wide")
 
@@ -24,18 +24,6 @@ if not st.session_state.get("authentication_status"):
     st.error("Please log in from the main page to access this dashboard.")
     st.stop()
 
-API_URL = os.environ.get("NEURALRETAIL_API_URL", "https://neuralretail-api-python.onrender.com/api/v1")
-
-@st.cache_data(ttl=900)
-def get_auth_token():
-    try:
-        response = requests.post(f"{API_URL}/login/access-token", data={"username": "admin", "password": "admin"})
-        if response.status_code == 200:
-            return response.json().get("access_token")
-    except Exception as e:
-        st.error(f"Failed to connect to API: {e}")
-    return None
-
 token = get_auth_token()
 
 st.title("Inventory Optimization & Health")
@@ -53,11 +41,11 @@ if st.sidebar.button("Analyze Inventory", type="primary"):
     else:
         results = []
         progress = st.progress(0)
-        headers = {"Authorization": f"Bearer {token}"}
+        headers = get_auth_headers(token)
 
         for i, sku in enumerate(selected_skus):
             try:
-                resp = requests.post(f"{API_URL}/inventory/reorder", json={"sku_id": sku, "store_id": store_id}, headers=headers)
+                resp = api_request_with_retry("POST", f"{API_URL}/inventory/reorder", json={"sku_id": sku, "store_id": store_id}, headers=headers, retries=1)
                 if resp.status_code == 200:
                     results.append(resp.json())
             except:

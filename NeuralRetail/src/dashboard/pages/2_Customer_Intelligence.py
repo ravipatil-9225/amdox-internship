@@ -3,10 +3,10 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
-import requests
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from export_utils import export_to_excel, export_to_pdf
+from api_helpers import API_URL, get_auth_token, get_auth_headers, api_request_with_retry
 
 st.set_page_config(page_title="Customer Intelligence | NeuralRetail", layout="wide")
 
@@ -24,18 +24,6 @@ st.markdown("""
 if not st.session_state.get("authentication_status"):
     st.error("Please log in from the main page to access this dashboard.")
     st.stop()
-
-API_URL = os.environ.get("NEURALRETAIL_API_URL", "https://neuralretail-api-python.onrender.com/api/v1")
-
-@st.cache_data(ttl=900)
-def get_auth_token():
-    try:
-        response = requests.post(f"{API_URL}/login/access-token", data={"username": "admin", "password": "admin"})
-        if response.status_code == 200:
-            return response.json().get("access_token")
-    except Exception as e:
-        st.error(f"Failed to connect to API: {e}")
-    return None
 
 token = get_auth_token()
 
@@ -58,10 +46,10 @@ with tab1:
         if not token:
             st.error("Authentication failed.")
         else:
-            with st.spinner("Running XGBoost + SHAP analysis..."):
-                headers = {"Authorization": f"Bearer {token}"}
+            with st.spinner("⏳ Running XGBoost + SHAP analysis..."):
+                headers = get_auth_headers(token)
                 try:
-                    resp = requests.post(f"{API_URL}/predict/churn", json={"customer_id": customer_id}, headers=headers)
+                    resp = api_request_with_retry("POST", f"{API_URL}/predict/churn", json={"customer_id": customer_id}, headers=headers)
                     if resp.status_code == 200:
                         data = resp.json()
 
@@ -133,10 +121,10 @@ with tab2:
         if not token:
             st.error("Authentication failed.")
         else:
-            with st.spinner("Running K-Means clustering on customer base..."):
-                headers = {"Authorization": f"Bearer {token}"}
+            with st.spinner("⏳ Running K-Means clustering on customer base..."):
+                headers = get_auth_headers(token)
                 try:
-                    resp = requests.post(f"{API_URL}/segment/score", json={}, headers=headers)
+                    resp = api_request_with_retry("POST", f"{API_URL}/segment/score", json={}, headers=headers)
                     if resp.status_code == 200:
                         data = resp.json()
 

@@ -3,10 +3,10 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
-import requests
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from export_utils import export_to_excel, export_to_pdf
+from api_helpers import API_URL, get_auth_token, get_auth_headers, api_request_with_retry
 
 st.set_page_config(page_title="Demand Intelligence | NeuralRetail", layout="wide")
 
@@ -26,18 +26,6 @@ if not st.session_state.get("authentication_status"):
     st.error("Please log in from the main page to access this dashboard.")
     st.stop()
 
-API_URL = os.environ.get("NEURALRETAIL_API_URL", "https://neuralretail-api-python.onrender.com/api/v1")
-
-@st.cache_data(ttl=900)
-def get_auth_token():
-    try:
-        response = requests.post(f"{API_URL}/login/access-token", data={"username": "admin", "password": "admin"})
-        if response.status_code == 200:
-            return response.json().get("access_token")
-    except Exception as e:
-        st.error(f"Failed to connect to API: {e}")
-    return None
-
 token = get_auth_token()
 
 st.title("Demand Forecasting Intelligence")
@@ -53,11 +41,11 @@ if st.sidebar.button("Generate Forecast", type="primary"):
     if not token:
         st.error("Authentication failed. Cannot request API.")
     else:
-        with st.spinner("Fetching predictions from NeuralRetail API..."):
-            headers = {"Authorization": f"Bearer {token}"}
+        with st.spinner("⏳ Fetching predictions from NeuralRetail API (may take ~30s on first request)..."):
+            headers = get_auth_headers(token)
             payload = {"sku_id": sku, "horizon_days": horizon, "store_id": store_id}
             try:
-                response = requests.post(f"{API_URL}/predict/demand", json=payload, headers=headers)
+                response = api_request_with_retry("POST", f"{API_URL}/predict/demand", json=payload, headers=headers)
                 if response.status_code == 200:
                     api_data = response.json()
                     

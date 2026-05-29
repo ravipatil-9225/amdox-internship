@@ -3,10 +3,10 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
-import requests
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from export_utils import export_to_excel, export_to_pdf
+from api_helpers import API_URL, get_auth_token, get_auth_headers, api_request_with_retry
 
 st.set_page_config(page_title="Revenue Analytics | NeuralRetail", layout="wide")
 
@@ -26,18 +26,6 @@ if not st.session_state.get("authentication_status"):
     st.error("Please log in from the main page to access this dashboard.")
     st.stop()
 
-API_URL = os.environ.get("NEURALRETAIL_API_URL", "https://neuralretail-api-python.onrender.com/api/v1")
-
-@st.cache_data(ttl=900)
-def get_auth_token():
-    try:
-        response = requests.post(f"{API_URL}/login/access-token", data={"username": "admin", "password": "admin"})
-        if response.status_code == 200:
-            return response.json().get("access_token")
-    except Exception as e:
-        st.error(f"Failed to connect to API: {e}")
-    return None
-
 token = get_auth_token()
 
 st.title("Revenue & Price Intelligence")
@@ -55,10 +43,10 @@ with tab1:
         if not token:
             st.error("Authentication failed.")
         else:
-            with st.spinner("Running causal inference models (DoWhy + EconML)..."):
-                headers = {"Authorization": f"Bearer {token}"}
+            with st.spinner("⏳ Running causal inference models (DoWhy + EconML)..."):
+                headers = get_auth_headers(token)
                 try:
-                    resp = requests.post(f"{API_URL}/revenue/elasticity", json={}, headers=headers, timeout=60)
+                    resp = api_request_with_retry("POST", f"{API_URL}/revenue/elasticity", json={}, headers=headers)
                     if resp.status_code == 200:
                         data = resp.json()
 
@@ -192,14 +180,14 @@ with tab2:
         if not token:
             st.error("Authentication failed.")
         else:
-            with st.spinner("Running revenue simulation..."):
-                headers = {"Authorization": f"Bearer {token}"}
+            with st.spinner("⏳ Running revenue simulation..."):
+                headers = get_auth_headers(token)
                 try:
-                    resp = requests.post(f"{API_URL}/revenue/simulate", json={
+                    resp = api_request_with_retry("POST", f"{API_URL}/revenue/simulate", json={
                         "sku_id": sim_sku,
                         "price_change_pct": price_change,
                         "promotion_flag": promo_flag
-                    }, headers=headers, timeout=30)
+                    }, headers=headers)
                     if resp.status_code == 200:
                         sim = resp.json()
 
@@ -260,9 +248,9 @@ with tab2:
                         sensitivity_data = []
                         for pct in range(-30, 31, 5):
                             try:
-                                r = requests.post(f"{API_URL}/revenue/simulate", json={
+                                r = api_request_with_retry("POST", f"{API_URL}/revenue/simulate", json={
                                     "sku_id": sim_sku, "price_change_pct": pct, "promotion_flag": False
-                                }, headers=headers, timeout=10)
+                                }, headers=headers, retries=1)
                                 if r.status_code == 200:
                                     s = r.json()
                                     sensitivity_data.append({
@@ -319,12 +307,24 @@ with tab3:
     st.subheader("Cross-Price Elasticity Matrix")
     st.markdown("_How does one category's price change affect another category's demand? Computed via **Double ML**._")
 
-    # Load categories from products data
+    # Load categories — try local parquet first, fall back to hardcoded list
     try:
-        products = pd.read_parquet("data/bronze/products.parquet")
-        categories = sorted(products['category'].unique().tolist())
+        # Try multiple possible paths for the parquet file
+        parquet_paths = [
+            "data/bronze/products.parquet",
+            os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", "bronze", "products.parquet"),
+        ]
+        products = None
+        for p in parquet_paths:
+            if os.path.exists(p):
+                products = pd.read_parquet(p)
+                break
+        if products is not None:
+            categories = sorted(products['category'].unique().tolist())
+        else:
+            raise FileNotFoundError("No local products.parquet found")
     except Exception:
-        categories = ["Electronics", "Groceries", "Fashion", "Home"]
+        categories = ["Clothing", "Electronics", "Home & Garden", "Sports", "Toys"]
 
     col_focal, col_comp = st.columns(2)
     with col_focal:
@@ -337,13 +337,13 @@ with tab3:
         if not token:
             st.error("Authentication failed.")
         else:
-            with st.spinner("Running Double ML cross-price analysis..."):
-                headers = {"Authorization": f"Bearer {token}"}
+            with st.spinner("⏳ Running Double ML cross-price analysis..."):
+                headers = get_auth_headers(token)
                 try:
-                    resp = requests.post(f"{API_URL}/revenue/cross-elasticity", json={
+                    resp = api_request_with_retry("POST", f"{API_URL}/revenue/cross-elasticity", json={
                         "focal_category": focal,
                         "competitor_category": competitor
-                    }, headers=headers, timeout=30)
+                    }, headers=headers)
                     if resp.status_code == 200:
                         data = resp.json()
 
@@ -386,7 +386,7 @@ with tab3:
             st.error("Authentication failed.")
         else:
             with st.spinner("Computing cross-elasticity for all category pairs..."):
-                headers = {"Authorization": f"Bearer {token}"}
+                headers = get_auth_headers(token)
                 matrix = {}
                 for f_cat in categories:
                     matrix[f_cat] = {}
@@ -395,10 +395,10 @@ with tab3:
                             matrix[f_cat][c_cat] = 0.0
                         else:
                             try:
-                                r = requests.post(f"{API_URL}/revenue/cross-elasticity", json={
+                                r = api_request_with_retry("POST", f"{API_URL}/revenue/cross-elasticity", json={
                                     "focal_category": f_cat,
                                     "competitor_category": c_cat
-                                }, headers=headers, timeout=15)
+                                }, headers=headers, retries=1)
                                 if r.status_code == 200:
                                     matrix[f_cat][c_cat] = r.json()['cross_elasticity']
                                 else:

@@ -25,9 +25,11 @@ _model = None
 def get_model():
     global _model
     if _model is None:
+        # Try MLflow first
         try:
             import mlflow
-            mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
+            tracking_uri = f"file:{settings.mlruns_dir}" if settings.MLFLOW_TRACKING_URI.startswith("file:") else settings.MLFLOW_TRACKING_URI
+            mlflow.set_tracking_uri(tracking_uri)
             experiment = mlflow.get_experiment_by_name("demand_forecasting")
             if not experiment:
                 raise Exception("Experiment 'demand_forecasting' not found.")
@@ -38,7 +40,28 @@ def get_model():
             model_uri = f"runs:/{run_id}/prophet_model"
             _model = mlflow.prophet.load_model(model_uri)
         except Exception as e:
-            print(f"Failed to load model: {e}")
+            print(f"MLflow load failed ({e}), trying pickle fallback...")
+            # Fallback: load from pickle file
+            try:
+                import pickle
+                pkl_path = settings.models_dir / "prophet_model.pkl"
+                if pkl_path.exists():
+                    with open(pkl_path, "rb") as f:
+                        _model = pickle.load(f)
+                    print(f"Loaded Prophet model from pickle: {pkl_path}")
+                else:
+                    # Try loading from MLflow artifacts directly
+                    from prophet.serialize import model_from_json
+                    import json
+                    json_path = settings.models_dir / "artifacts" / "prophet_model.json"
+                    if json_path.exists():
+                        with open(json_path, "r") as f:
+                            _model = model_from_json(f.read())
+                        print(f"Loaded Prophet model from JSON: {json_path}")
+                    else:
+                        print(f"No fallback model found at {pkl_path} or {json_path}")
+            except Exception as e2:
+                print(f"Pickle/JSON fallback also failed: {e2}")
     return _model
 
 @router.post("/demand", response_model=DemandResponse)

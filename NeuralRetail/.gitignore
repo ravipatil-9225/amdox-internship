@@ -30,16 +30,18 @@ token.json
 .env.local
 .env.production
 
-# Data files (too large for git)
-data/bronze/*.parquet
-data/silver/*.parquet
-data/gold/*.parquet
+# Data files — included for deployment (Render/Streamlit Cloud)
+# Uncomment below to exclude if using cloud storage instead:
+# data/bronze/*.parquet
+# data/silver/*.parquet
+# data/gold/*.parquet
 data/*.db
 !data/.gitkeep
 
-# Model artifacts
-models/*.pkl
-models/artifacts/*.pkl
+# Model artifacts — included for deployment
+# Uncomment below to exclude if using MLflow Model Registry:
+# models/*.pkl
+# models/artifacts/*.pkl
 !models/.gitkeep
 
 # MLflow

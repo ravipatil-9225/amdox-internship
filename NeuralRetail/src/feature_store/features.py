@@ -24,23 +24,20 @@ customer = Entity(
 # Data Sources
 # ---------------------------------------------------------------------------
 
-_BASE = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "data")
-)
-
+# Relative path from project root is data/
 customer_source = FileSource(
-    path=os.path.join(_BASE, "bronze", "customers.parquet"),
+    path="data/bronze/customers.parquet",
     timestamp_field="signup_date",
 )
 
 transaction_source = FileSource(
-    path=os.path.join(_BASE, "bronze", "transactions.parquet"),
+    path="data/bronze/transactions.parquet",
     timestamp_field="timestamp",
 )
 
 # Silver layer -- RFM features (computed by feature_engineering pipeline)
 rfm_source = FileSource(
-    path=os.path.join(_BASE, "silver", "customer_features.parquet"),
+    path="data/silver/customer_features.parquet",
     timestamp_field="event_timestamp",
     created_timestamp_column="created_timestamp",
 )

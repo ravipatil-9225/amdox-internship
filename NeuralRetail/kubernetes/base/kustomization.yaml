@@ -10,10 +10,21 @@ namespace: neuralretail
 resources:
 - namespace.yaml
 - configmap.yaml
+- pvc.yaml
 - champion-deployment.yaml
 - shadow-deployment.yaml
 - virtual-service.yaml
 - fastapi-deployment.yaml        # Legacy deployment (kept for compatibility)
+
+secretGenerator:
+- name: db-secrets
+  namespace: neuralretail
+  literals:
+  - database_url=postgresql://postgres:postgres@postgres:5432/neuralretail
+- name: redis-secrets
+  namespace: neuralretail
+  literals:
+  - redis_url=redis://redis:6379/0
 
 commonLabels:
   managed-by: kustomize

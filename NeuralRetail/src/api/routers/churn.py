@@ -5,6 +5,8 @@ from src.api.security import get_current_user
 from src.config.settings import settings
 import pandas as pd
 import numpy as np
+import pickle
+import os
 
 router = APIRouter()
 
@@ -25,10 +27,12 @@ _explainer = None
 def get_churn_model():
     global _model, _explainer
     if _model is None:
+        # Try MLflow first
         try:
             import mlflow
             import shap
-            mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
+            tracking_uri = f"file:{settings.mlruns_dir}" if settings.MLFLOW_TRACKING_URI.startswith("file:") else settings.MLFLOW_TRACKING_URI
+            mlflow.set_tracking_uri(tracking_uri)
             experiment = mlflow.get_experiment_by_name("churn_prediction")
             if not experiment:
                 raise Exception("Experiment 'churn_prediction' not found.")
@@ -39,7 +43,20 @@ def get_churn_model():
             _model = mlflow.xgboost.load_model(f"runs:/{run_id}/xgb_model")
             _explainer = shap.TreeExplainer(_model)
         except Exception as e:
-            print(f"Failed to load churn model: {e}")
+            print(f"MLflow load failed ({e}), trying pickle fallback...")
+            # Fallback: load from pickle file
+            try:
+                import shap
+                pkl_path = settings.models_dir / "xgb_churn.pkl"
+                if pkl_path.exists():
+                    with open(pkl_path, "rb") as f:
+                        _model = pickle.load(f)
+                    _explainer = shap.TreeExplainer(_model)
+                    print(f"Loaded churn model from pickle: {pkl_path}")
+                else:
+                    print(f"Pickle file not found: {pkl_path}")
+            except Exception as e2:
+                print(f"Pickle fallback also failed: {e2}")
     return _model, _explainer
 
 @router.post("/churn", response_model=ChurnResponse)
@@ -53,8 +70,8 @@ async def predict_churn(request: ChurnRequest, current_user = Depends(get_curren
 
     try:
         # Load customer data from bronze layer
-        customers = pd.read_parquet("data/bronze/customers.parquet")
-        transactions = pd.read_parquet("data/bronze/transactions.parquet")
+        customers = pd.read_parquet(settings.data_dir / "customers.parquet")
+        transactions = pd.read_parquet(settings.data_dir / "transactions.parquet")
 
         # Build features for requested customer
         latest_date = transactions['timestamp'].max()

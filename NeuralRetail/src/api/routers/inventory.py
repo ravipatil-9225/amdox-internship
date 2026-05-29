@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from src.api.security import get_current_user
+from src.config.settings import settings
 import pandas as pd
 import numpy as np
 import math
@@ -27,9 +28,9 @@ async def inventory_reorder(request: InventoryRequest, current_user = Depends(ge
     EOQ-based inventory optimization with ABC classification and dead-stock detection.
     """
     try:
-        inventory = pd.read_parquet("data/bronze/inventory.parquet")
-        transactions = pd.read_parquet("data/bronze/transactions.parquet")
-        products = pd.read_parquet("data/bronze/products.parquet")
+        inventory = pd.read_parquet(settings.data_dir / "inventory.parquet")
+        transactions = pd.read_parquet(settings.data_dir / "transactions.parquet")
+        products = pd.read_parquet(settings.data_dir / "products.parquet")
 
         # Current stock
         inv_row = inventory[inventory['sku_id'] == request.sku_id]

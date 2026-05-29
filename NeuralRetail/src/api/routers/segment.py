@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 from src.api.security import get_current_user
+from src.config.settings import settings
 import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans, DBSCAN
@@ -39,8 +40,8 @@ def run_segmentation():
         return _segmentation_result
 
     try:
-        customers = pd.read_parquet("data/bronze/customers.parquet")
-        transactions = pd.read_parquet("data/bronze/transactions.parquet")
+        customers = pd.read_parquet(settings.data_dir / "customers.parquet")
+        transactions = pd.read_parquet(settings.data_dir / "transactions.parquet")
 
         latest_date = transactions['timestamp'].max()
         rfm = transactions.groupby('customer_id').agg({

@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 from src.api.security import get_current_user
+from src.config.settings import settings
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import GradientBoostingRegressor
@@ -72,8 +73,8 @@ def _load_merged():
     global _merged_cache
     if _merged_cache is not None:
         return _merged_cache
-    products = pd.read_parquet("data/bronze/products.parquet")
-    transactions = pd.read_parquet("data/bronze/transactions.parquet")
+    products = pd.read_parquet(settings.data_dir / "products.parquet")
+    transactions = pd.read_parquet(settings.data_dir / "transactions.parquet")
     merged = transactions.merge(
         products[['sku_id', 'category', 'base_price', 'cost_price']], on='sku_id')
     merged['unit_price'] = merged['total_amount'] / merged['quantity']
@@ -303,8 +304,8 @@ async def revenue_simulator(
     projected demand/revenue impact using the causal elasticity model.
     """
     try:
-        products = pd.read_parquet("data/bronze/products.parquet")
-        transactions = pd.read_parquet("data/bronze/transactions.parquet")
+        products = pd.read_parquet(settings.data_dir / "products.parquet")
+        transactions = pd.read_parquet(settings.data_dir / "transactions.parquet")
 
         prod = products[products['sku_id'] == request.sku_id]
         if prod.empty:
