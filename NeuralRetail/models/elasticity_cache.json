@@ -1,0 +1,42 @@
+{
+    "Toys": {
+        "elasticity": 0.0404,
+        "nonlinear_elasticity": 0.0404,
+        "r_squared": 0.0001,
+        "interpretation": "Inelastic (demand insensitive to price)",
+        "avg_price": 300.99,
+        "avg_demand": 3.01
+    },
+    "Home & Garden": {
+        "elasticity": -0.5218,
+        "nonlinear_elasticity": -0.5218,
+        "r_squared": 0.0,
+        "interpretation": "Inelastic (demand insensitive to price)",
+        "avg_price": 233.49,
+        "avg_demand": 3.0
+    },
+    "Sports": {
+        "elasticity": 0.2306,
+        "nonlinear_elasticity": 0.2306,
+        "r_squared": 0.0,
+        "interpretation": "Inelastic (demand insensitive to price)",
+        "avg_price": 251.98,
+        "avg_demand": 3.03
+    },
+    "Electronics": {
+        "elasticity": -0.3756,
+        "nonlinear_elasticity": -0.3756,
+        "r_squared": 0.0,
+        "interpretation": "Inelastic (demand insensitive to price)",
+        "avg_price": 252.08,
+        "avg_demand": 3.0
+    },
+    "Clothing": {
+        "elasticity": 0.1937,
+        "nonlinear_elasticity": 0.1937,
+        "r_squared": 0.0,
+        "interpretation": "Inelastic (demand insensitive to price)",
+        "avg_price": 243.15,
+        "avg_demand": 3.0
+    }
+}
