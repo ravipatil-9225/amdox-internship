@@ -22,7 +22,7 @@ BACKOFF_BASE = 2  # seconds
 def api_request_with_retry(method, url, retries=MAX_RETRIES, **kwargs):
     """
     Make an HTTP request with retry logic and exponential backoff.
-    Handles Render cold-start timeouts gracefully.
+    Handles Render cold-start timeouts and 502/503/504 errors gracefully.
     """
     kwargs.setdefault("timeout", REQUEST_TIMEOUT)
     last_error = None
@@ -34,7 +34,10 @@ def api_request_with_retry(method, url, retries=MAX_RETRIES, **kwargs):
             else:
                 resp = requests.get(url, **kwargs)
 
-            # If server returned a response (even an error), return it
+            # If the server is waking up, Render might return 502 or 503
+            if resp.status_code in [502, 503, 504]:
+                raise requests.exceptions.ConnectionError(f"Server returned {resp.status_code} (waking up...)")
+
             return resp
 
         except requests.exceptions.ConnectionError as e:
@@ -57,10 +60,9 @@ def api_request_with_retry(method, url, retries=MAX_RETRIES, **kwargs):
     st.error(f"❌ Could not connect to API after {retries} attempts: {last_error}")
     return None
 
-
 @st.cache_data(ttl=900)
-def get_auth_token():
-    """Get JWT auth token with retry logic for Render cold starts."""
+def _fetch_auth_token():
+    """Internal cached function to fetch token."""
     try:
         resp = api_request_with_retry(
             "POST",
@@ -74,6 +76,13 @@ def get_auth_token():
     except Exception as e:
         st.error(f"Failed to connect to API: {e}")
     return None
+
+def get_auth_token():
+    """Get JWT auth token. Bypasses cache if None."""
+    token = _fetch_auth_token()
+    if token is None:
+        _fetch_auth_token.clear()  # Clear cache so it tries again next time
+    return token
 
 
 def get_auth_headers(token):
